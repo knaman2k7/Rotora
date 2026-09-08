@@ -7,10 +7,10 @@ const port = Number(process.env.PORT ?? 3000);
 app.use(express.json());
 
 app.post('/api/login', async (request: Request, response: Response) => {
-	const { email, password } = request.body ?? {};
+	const { username, password } = request.body ?? {};
 
-	if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
-		response.status(400).json({ message: 'Email and password are required.' });
+	if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
+		response.status(400).json({ message: 'Username and password are required.' });
 		return;
 	}
 

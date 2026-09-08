@@ -3,11 +3,10 @@
 import { useState } from 'react'
 import './App.css'
 
-const initialForm = { email: '', password: '' }
+const initialForm = { username: '', password: '' }
 
 export default function App() {
   const [form, setForm] = useState(initialForm)
-  const [rememberMe, setRememberMe] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState(null)
 
@@ -33,7 +32,6 @@ export default function App() {
       if (!response.ok) throw new Error(data.message || 'Unable to sign in.')
 
       setMessage({ type: 'success', text: data.message || 'You are signed in.' })
-      if (!rememberMe) setForm((current) => ({ ...current, password: '' }))
     } catch (error) {
       setMessage({ type: 'error', text: error.message })
     } finally {
@@ -45,24 +43,15 @@ export default function App() {
     <main className="auth-shell">
       <section className="form-panel">
         <div className="form-wrap">
-          <p className="eyebrow">Welcome back</p>
           <h2>Sign in to Rotora</h2>
-          <p className="form-intro">Enter your details to pick up where you left off.</p>
+          <br/><br/>
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="email">Email address</label>
-            <input id="email" name="email" type="email" autoComplete="email" placeholder="you@company.com" value={form.email} onChange={handleChange} required />
+            <label htmlFor="username">Username</label>
+            <input id="username" name="username" type="text" autoComplete="username" placeholder="Enter your username" value={form.username} onChange={handleChange} required />
 
-            <div className="label-row">
-              <label htmlFor="password">Password</label>
-              <a href="mailto:support@rotora.app?subject=Reset%20password">Forgot password?</a>
-            </div>
+            <label htmlFor="password">Password</label>
             <input id="password" name="password" type="password" autoComplete="current-password" placeholder="Enter your password" value={form.password} onChange={handleChange} minLength="8" required />
-
-            <label className="checkbox-label">
-              <input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} />
-              <span>Keep me signed in</span>
-            </label>
 
             {message && <p className={`form-message ${message.type}`} role="alert">{message.text}</p>}
 
