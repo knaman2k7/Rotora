@@ -1,5 +1,24 @@
 # React + Vite
 
+## Employee constraints API
+
+The server exposes CRUD endpoints for the two employee constraint tables. The
+`constraint` value must be a JSON integer matrix such as `[[1, 0], [0, 1]]`.
+
+### Default constraints
+
+- `GET /api/defaultEmployeeConstraints/:id`
+- `POST /api/defaultEmployeeConstraints` with `{ "id": 1, "constraint": [[1, 0]] }`
+- `PUT /api/defaultEmployeeConstraints/:id` with `{ "constraint": [[1, 0]] }`
+- `DELETE /api/defaultEmployeeConstraints/:id`
+
+### Week-specific constraints
+
+- `GET /api/specificEmployeeConstraints/:id`
+- `POST /api/specificEmployeeConstraints` with `{ "id": 1, "weekNo": 34, "constraint": [[1, 0]] }`
+- `PUT /api/specificEmployeeConstraints/:id/:weekNo` with `{ "constraint": [[1, 0]] }`
+- `DELETE /api/specificEmployeeConstraints/:id/:weekNo`
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

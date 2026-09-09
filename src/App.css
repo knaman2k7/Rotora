@@ -1,23 +1,90 @@
-.auth-shell {
-	min-height: 100vh;
-	display: grid;
-	background: #f8f7f2;
+:root {
+	--ink: #123b38;
+	--muted: #66716b;
+	--line: #d7dcd4;
+	--paper: #f8f7f2;
+	--lime: #e3f24e;
+	--blue: #dceaf4;
+	--orange: #f5c98f;
 }
-.eyebrow { margin: 0 0 1rem; color: #a0aaa5; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.13em; line-height: 1.2; text-transform: uppercase; }
-h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
-h2 { color: #123b38; font-size: clamp(2.3rem, 4vw, 3.5rem); line-height: 1; }
+
+button,
+input { font: inherit; }
+
+button { border: 0; border-radius: 0.35rem; cursor: pointer; font-weight: 800; }
+button:focus-visible,
+input:focus-visible { outline: 3px solid rgba(18, 59, 56, 0.28); outline-offset: 2px; }
+
+.eyebrow { margin: 0 0 1rem; color: #87928c; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.13em; line-height: 1.2; text-transform: uppercase; }
+
+.auth-shell { min-height: 100vh; background: var(--paper); }
 .form-panel { display: grid; place-items: center; min-height: 100vh; padding: 2rem 1.5rem; }
 .form-wrap { width: min(100%, 28rem); }
-.form-intro { margin: 1rem 0 2.5rem; color: #66716b; line-height: 1.5; }
+.form-wrap h2,
+.dashboard-intro h2,
+.next-step-panel h2 { margin: 0; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2.3rem, 4vw, 3.5rem); font-weight: 400; letter-spacing: -0.03em; line-height: 1; }
+.form-intro { margin: 1rem 0 2.5rem; color: var(--muted); line-height: 1.5; }
 form { display: grid; gap: 0.65rem; }
 label { color: #24433f; font-size: 0.82rem; font-weight: 700; }
-input:not([type='checkbox']) { width: 100%; box-sizing: border-box; margin-bottom: 1rem; padding: 0.95rem 1rem; border: 1px solid #d7dcd4; border-radius: 0.35rem; outline: none; color: #123b38; background: #fff; font: inherit; transition: border-color 160ms ease, box-shadow 160ms ease; }
-input:not([type='checkbox']):focus { border-color: #123b38; box-shadow: 0 0 0 3px rgba(18, 59, 56, 0.1); }
+input:not([type='checkbox']) { width: 100%; box-sizing: border-box; margin-bottom: 1rem; padding: 0.95rem 1rem; border: 1px solid var(--line); border-radius: 0.35rem; outline: none; color: var(--ink); background: #fff; transition: border-color 160ms ease, box-shadow 160ms ease; }
+input:not([type='checkbox']):focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(18, 59, 56, 0.1); }
 input::placeholder { color: #a3aaa4; }
-button { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.1rem; border: 0; border-radius: 0.35rem; color: #123b38; background: #e3f24e; cursor: pointer; font: inherit; font-weight: 800; transition: transform 160ms ease, background 160ms ease; }
-button:hover:not(:disabled) { background: #d5e345; transform: translateY(-2px); }
+form button { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.1rem; color: var(--ink); background: var(--lime); transition: transform 160ms ease, background 160ms ease; }
+form button:hover:not(:disabled),
+.primary-action:hover { background: #d5e345; transform: translateY(-2px); }
 button:disabled { cursor: wait; opacity: 0.65; }
 button span { font-size: 1.3rem; }
 .form-message { margin: 0 0 0.5rem; padding: 0.75rem; border-radius: 0.35rem; font-size: 0.82rem; }
 .form-message.error { color: #8b2d2d; background: #fce9e5; }
-.form-message.success { color: #245f4f; background: #e0f2e8; }
+
+.scheduler-shell { display: grid; grid-template-columns: 14rem minmax(0, 1fr); min-height: 100vh; color: var(--ink); background: #f4f3ed; }
+.scheduler-sidebar { display: flex; flex-direction: column; min-height: 100vh; padding: 2.2rem 1.2rem 1.5rem; border-right: 1px solid #cdd1ca; background: #eeeee8; }
+.scheduler-logo { margin: 0 0 3.5rem 0.7rem; font-family: Georgia, 'Times New Roman', serif; font-size: 1.2rem; letter-spacing: 0.14em; }
+.scheduler-nav { display: grid; gap: 0.45rem; }
+.scheduler-nav-item { padding: 0.85rem 0.7rem; border-radius: 0.25rem; color: var(--ink); background: transparent; text-align: left; font-size: 0.78rem; font-weight: 500; }
+.scheduler-nav-item.active { background: #e0e0d9; font-weight: 800; }
+.scheduler-nav-item:hover { background: #e4e4dd; transform: none; }
+.scheduler-logout { margin-top: auto; padding: 0.7rem; color: var(--muted); background: transparent; text-align: left; font-size: 0.78rem; font-weight: 500; }
+.scheduler-logout:hover { color: var(--ink); background: #e4e4dd; transform: none; }
+.scheduler-content { width: min(100%, 70rem); margin: 0 auto; padding: clamp(2rem, 5vw, 4.5rem) clamp(1.5rem, 6vw, 6rem); }
+.employee-constraints-view { max-width: 52rem; margin: 0 auto; }
+.employee-constraints-heading { margin: 2rem 0 3rem; }
+.employee-constraints-heading h1 { margin: 0; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 400; }
+.employee-constraints-heading p:last-child { margin: 1rem 0 0; color: var(--muted); }
+.constraints-empty-state { display: grid; min-height: 18rem; place-items: center; border: 1px solid #aeb5ad; background: #fafaf7; color: var(--muted); font-size: 0.85rem; }
+.constraints-empty-state p { margin: 0; }
+.scheduler-header { display: flex; align-items: center; justify-content: center; gap: clamp(1rem, 4vw, 4rem); margin: 0 auto 3.5rem; }
+.week-heading { min-width: 13rem; text-align: center; }
+.week-heading .eyebrow { margin-bottom: 0.35rem; color: var(--muted); }
+.week-heading h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; }
+.week-heading p:last-child { margin: 0.6rem 0 0; color: var(--muted); font-size: 0.82rem; }
+.week-arrow { width: 2.2rem; height: 2.2rem; padding: 0; color: var(--ink); background: transparent; font-family: Georgia, 'Times New Roman', serif; font-size: 2rem; font-weight: 400; line-height: 1; }
+.week-arrow:hover { background: #e4e4dd; transform: none; }
+.schedule-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+.schedule-toolbar p { margin: 0; color: var(--muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.copy-button { padding: 0.55rem 0.9rem; border: 1px solid #c3c8c0; color: var(--ink); background: transparent; font-size: 0.78rem; }
+.copy-button:hover { background: #e4e4dd; transform: none; }
+.empty-schedule-board { overflow: hidden; border: 1px solid #aeb5ad; background: #fafaf7; }
+.schedule-day-labels { display: grid; grid-template-columns: repeat(7, minmax(5rem, 1fr)); border-bottom: 1px solid #aeb5ad; }
+.schedule-day-labels span { padding: 0.7rem 0.45rem; border-right: 1px solid #cdd1ca; color: var(--muted); font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; }
+.schedule-day-labels span:last-child { border-right: 0; }
+.schedule-grid { display: grid; grid-template-columns: repeat(7, minmax(5rem, 1fr)); grid-template-rows: repeat(7, 3.2rem); }
+.schedule-grid span { border-right: 1px solid #d7dad4; border-bottom: 1px solid #d7dad4; }
+.schedule-grid span:nth-child(7n) { border-right: 0; }
+.schedule-grid span:nth-last-child(-n + 7) { border-bottom: 0; }
+.regenerate-button { display: block; margin: 2rem auto 0; padding: 0.8rem 1.2rem; color: #f8f7f2; background: var(--ink); font-size: 0.8rem; }
+.regenerate-button:hover { background: #1d504b; transform: translateY(-2px); }
+
+@media (max-width: 700px) {
+	.form-panel { min-height: 100vh; padding: 3.5rem 1.5rem; }
+	.scheduler-shell { display: block; }
+	.scheduler-sidebar { min-height: auto; padding: 1rem 1.25rem; border-right: 0; border-bottom: 1px solid #cdd1ca; }
+	.scheduler-logo { margin: 0 0 1rem; }
+	.scheduler-nav { grid-template-columns: 1fr 1fr; }
+	.scheduler-logout { margin-top: 0.8rem; padding: 0.5rem 0.7rem; }
+	.scheduler-content { padding: 2.5rem 1rem; }
+	.scheduler-header { margin-bottom: 2.5rem; }
+	.schedule-day-labels,
+	.schedule-grid { min-width: 35rem; }
+	.empty-schedule-board { overflow-x: auto; }
+}
