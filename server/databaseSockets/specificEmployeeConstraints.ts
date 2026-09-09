@@ -1,7 +1,7 @@
 import db from '../database/db.ts';
 import type { Request, Response } from 'express';
 import {
-    isIntegerMatrix,
+    isIntegerArray,
     readPositiveInteger,
     requireConstraintId,
     sendInvalidConstraintRequest,
@@ -9,12 +9,19 @@ import {
 
 export async function readSpecificEmployeeConstraints(request: Request, response: Response) {
     const id = requireConstraintId(request, response);
-    if (id === null) return;
+    const weekNo = readPositiveInteger(request.params.weekNo);
+
+    if (id === null || weekNo === null) {
+        if (id !== null) {
+            sendInvalidConstraintRequest(response, 'A positive integer weekNo is required in the URL.');
+        }
+        return;
+    }
 
     try {
         const result = await db.query(
-            'SELECT id, "constraint", week_no FROM specific_employee_constraints WHERE id = $1 ORDER BY week_no',
-            [id],
+            'SELECT id, "constraint", week_no FROM specific_employee_constraints WHERE id = $1 AND week_no = $2',
+            [id, weekNo],
         );
 
         response.status(200).json({ specificEmployeeConstraints: result.rows });
@@ -29,8 +36,8 @@ export async function createSpecificEmployeeConstraints(request: Request, respon
     const weekNo = readPositiveInteger(request.body?.weekNo);
     const constraints = request.body?.constraint;
 
-    if (id === null || weekNo === null || !isIntegerMatrix(constraints)) {
-        sendInvalidConstraintRequest(response, 'id and weekNo must be positive integers and constraint must be an integer matrix.');
+    if (id === null || weekNo === null || !isIntegerArray(constraints)) {
+        sendInvalidConstraintRequest(response, 'id and weekNo must be positive integers and constraint must be an integer array.');
         return;
     }
 
@@ -54,9 +61,9 @@ export async function updateSpecificEmployeeConstraints(request: Request, respon
     const weekNo = readPositiveInteger(request.params.weekNo);
     const constraints = request.body?.constraint;
 
-    if (id === null || weekNo === null || !isIntegerMatrix(constraints)) {
+    if (id === null || weekNo === null || !isIntegerArray(constraints)) {
         if (id !== null) {
-            sendInvalidConstraintRequest(response, 'weekNo must be a positive integer in the URL and constraint must be an integer matrix.');
+            sendInvalidConstraintRequest(response, 'weekNo must be a positive integer in the URL and constraint must be an integer array.');
         }
         return;
     }

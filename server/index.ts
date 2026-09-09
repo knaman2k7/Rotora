@@ -3,7 +3,7 @@ import express from 'express';
 import login from './login/login.ts';
 
 import { readWeekRota, regenerateWeekRota } from './databaseSockets/weekRota.ts';
-import { readEmployeeDetails, updateEmployeeDetails } from './databaseSockets/employeeDetails.ts';
+import { readEmployeeDetails, readEmployeeNames, updateEmployeeDetails } from './databaseSockets/employeeDetails.ts';
 import {
 	readDefaultEmployeeConstraints,
 	updateDefaultEmployeeConstraints,
@@ -32,7 +32,8 @@ app.get("/api/weekRota", readWeekRota);
 app.post("/api/regenerateWeekRota", regenerateWeekRota);
 
 // employee's details
-app.get("/api/employeeDetail", readEmployeeDetails);
+app.get("/api/employees", readEmployeeNames);
+app.get("/api/employeeDetail/:id", readEmployeeDetails);
 app.post("/api/updateEmployeeDetail", updateEmployeeDetails);
 
 // employee constraint defaults
@@ -40,7 +41,7 @@ app.get('/api/defaultEmployeeConstraints/:id', readDefaultEmployeeConstraints);
 app.put('/api/defaultEmployeeConstraints/:id', updateDefaultEmployeeConstraints);
 
 // employee constraint overrides for a specific week
-app.get('/api/specificEmployeeConstraints/:id', readSpecificEmployeeConstraints);
+app.get('/api/specificEmployeeConstraints/:id/:weekNo', readSpecificEmployeeConstraints);
 app.post('/api/specificEmployeeConstraints', createSpecificEmployeeConstraints);
 app.put('/api/specificEmployeeConstraints/:id/:weekNo', updateSpecificEmployeeConstraints);
 app.delete('/api/specificEmployeeConstraints/:id/:weekNo', deleteSpecificEmployeeConstraints);

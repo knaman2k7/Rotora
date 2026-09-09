@@ -13,9 +13,8 @@ export function readPositiveInteger(value: unknown): number | null {
     return null;
 }
 
-export function isIntegerMatrix(value: unknown): value is number[][] {
-    return Array.isArray(value)
-        && value.every((row) => Array.isArray(row) && row.every((entry) => Number.isInteger(entry)));
+export function isIntegerArray(value: unknown): value is number[] {
+    return Array.isArray(value) && value.every((entry) => Number.isInteger(entry));
 }
 
 export function sendInvalidConstraintRequest(response: Response, message: string) {

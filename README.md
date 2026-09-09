@@ -1,35 +1,40 @@
-# React + Vite
+## Shift Encoding
 
-## Employee constraints API
+Store opening times:
+Monday - Saturday: 10am to 8pm
+Sunday: 12pm to 6pm
 
-The server exposes CRUD endpoints for the two employee constraint tables. The
-`constraint` value must be a JSON integer matrix such as `[[1, 0], [0, 1]]`.
+8 hour shifts have 1 hour lunch
+6 hour shifts have no lunch(for simplicity sake)
 
-### Default constraints
+Monday - Saturday has 4 type of shifts available:
+morning 8 hour: 10am to 7pm
+morning 6 hour: 10am to 4pm
+evening 8 hour: 11am to 8pm
+evening 6 hour: 2pm to 8pm
 
-- `GET /api/defaultEmployeeConstraints/:id`
-- `POST /api/defaultEmployeeConstraints` with `{ "id": 1, "constraint": [[1, 0]] }`
-- `PUT /api/defaultEmployeeConstraints/:id` with `{ "constraint": [[1, 0]] }`
-- `DELETE /api/defaultEmployeeConstraints/:id`
+Sunday has 2 type of shifts available:
+9am to 6pm(used by manager/assistant-manager/supervisor)
+12pm to 6pm(part-time)
 
-### Week-specific constraints
+Shift encoding stored in database (xy):
+x = day -- Monday = 1; Tuesday = 2...
+y = shift type -- morning 8 hour = 1; morning 6 hour = 2; evening 8 = 3; evening 6 = 4 / for sunday 8 hour
 
-- `GET /api/specificEmployeeConstraints/:id`
-- `POST /api/specificEmployeeConstraints` with `{ "id": 1, "weekNo": 34, "constraint": [[1, 0]] }`
-- `PUT /api/specificEmployeeConstraints/:id/:weekNo` with `{ "constraint": [[1, 0]] }`
-- `DELETE /api/specificEmployeeConstraints/:id/:weekNo`
+Shifts, when employees are NOT available, are stored in the database as constraints
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Employees have two types of constraints within the database:
+- specific -- specific constraints given for a specific week
+- default -- constraints assumed for every week, if specific constraint not given for given week
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Front-end - employee constraints
 
-## React Compiler
+All shifts are assumed available for any employee, until unavailability for specific shift type is selected by user
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+if an employee is not available for:
+- morning 6 hour shift, they are transatively not available for morning 8 hour shift
+- evening 6 hour shift, they are transatively not available for morning 8 hour shift
+So, when the 6 hour shift is selected to show unavailability, the 8 hour shift should also become unavailable
 
-## Expanding the Oxlint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.

@@ -1,8 +1,7 @@
 import db from '../database/db.ts';
 import type { Request, Response } from 'express';
 import {
-    isIntegerMatrix,
-    readPositiveInteger,
+    isIntegerArray,
     requireConstraintId,
     sendInvalidConstraintRequest,
 } from './constraintValidation.ts';
@@ -34,9 +33,9 @@ export async function updateDefaultEmployeeConstraints(request: Request, respons
     const id = requireConstraintId(request, response);
     const constraints = request.body?.constraint;
 
-    if (id === null || !isIntegerMatrix(constraints)) {
+    if (id === null || !isIntegerArray(constraints)) {
         if (id !== null) {
-            sendInvalidConstraintRequest(response, 'constraint must be an integer matrix.');
+            sendInvalidConstraintRequest(response, 'constraint must be an integer array.');
         }
         return;
     }

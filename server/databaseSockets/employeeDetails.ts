@@ -1,9 +1,24 @@
 import db from '../database/db.ts';
 import type { Request, Response } from 'express';
 
+export async function readEmployeeNames(_request: Request, response: Response){
+
+    try{
+
+        const result = await db.query('SELECT id, name FROM employee_details ORDER BY name');
+
+        response.status(200).json({ employees: result.rows });
+
+    }
+    catch{
+        response.sendStatus(500);
+    }
+
+}
+
 export async function readEmployeeDetails(request: Request, response: Response){
 
-    const { employeeId } = request.body;
+    const employeeId = request.params.id;
 
     try{
 
@@ -21,19 +36,20 @@ export async function readEmployeeDetails(request: Request, response: Response){
 
 export async function updateEmployeeDetails(request: Request, response: Response){
 
-    const { employeeID, keyholder, contractHours, desiredHours, employeeType } = request.body;
+    const { id, name, keyholder, contractHours, desiredHours, employeeType } = request.body;
 
     try{
 
         const result = await db.query(
             `UPDATE employee_details
-             SET keyholder = $2,
-                 contract_hours = $3,
-                 desired_hours = $4,
-                 employee_type = $5
+             SET name = $2,
+                 keyholder = $3,
+                 contract_hours = $4,
+                 desired_hours = $5,
+                 employee_type = $6
              WHERE id = $1
              RETURNING *`,
-            [employeeID, keyholder, contractHours, desiredHours, employeeType]
+            [id, name, keyholder, contractHours, desiredHours, employeeType]
         );
 
         response.sendStatus(200);
