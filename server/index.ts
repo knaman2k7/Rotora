@@ -40,9 +40,9 @@ app.post("/api/updateEmployeeDetail", updateEmployeeDetails);
 app.get('/api/defaultEmployeeConstraints/:id', readDefaultEmployeeConstraints);
 app.put('/api/defaultEmployeeConstraints/:id', updateDefaultEmployeeConstraints);
 
-// employee constraint overrides for a specific week
+// employee constraint for a specific week
 app.get('/api/specificEmployeeConstraints/:id/:weekNo', readSpecificEmployeeConstraints);
-app.post('/api/specificEmployeeConstraints', createSpecificEmployeeConstraints);
+app.post('/api/specificEmployeeConstraints/:id/:weekNo', createSpecificEmployeeConstraints);
 app.put('/api/specificEmployeeConstraints/:id/:weekNo', updateSpecificEmployeeConstraints);
 app.delete('/api/specificEmployeeConstraints/:id/:weekNo', deleteSpecificEmployeeConstraints);
 

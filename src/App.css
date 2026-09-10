@@ -46,8 +46,8 @@ button span { font-size: 1.3rem; }
 .scheduler-nav-item:hover { background: #e4e4dd; transform: none; }
 .scheduler-logout { margin-top: auto; padding: 0.7rem; color: var(--muted); background: transparent; text-align: left; font-size: 0.78rem; font-weight: 500; }
 .scheduler-logout:hover { color: var(--ink); background: #e4e4dd; transform: none; }
-.scheduler-content { width: min(100%, 70rem); margin: 0 auto; padding: clamp(2rem, 5vw, 4.5rem) clamp(1.5rem, 6vw, 6rem); }
-.employee-constraints-view { max-width: 52rem; margin: 0 auto; }
+.scheduler-content { width: min(100%, 88rem); margin: 0 auto; padding: clamp(2rem, 5vw, 4.5rem) clamp(1rem, 3vw, 3rem); }
+.employee-constraints-view { max-width: 70rem; margin: 0 auto; }
 .employee-constraints-heading { margin: 2rem 0 3rem; }
 .employee-constraints-heading h1 { margin: 0; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 400; }
 .employee-constraints-heading p:last-child { margin: 1rem 0 0; color: var(--muted); }
@@ -71,20 +71,27 @@ button span { font-size: 1.3rem; }
 .constraints-editor { gap: 0; }
 .constraints-controls { display: grid; grid-template-columns: minmax(12rem, 0.7fr) minmax(12rem, 0.7fr) 1fr; align-items: end; gap: 1rem; margin-bottom: 1.1rem; }
 .constraints-controls label { display: grid; gap: 0.45rem; }
+.constraints-controls.specific { display: flex; justify-content: center; }
+.constraints-controls.specific label { justify-items: center; }
 .constraints-controls input { margin: 0; padding: 0.75rem 0.8rem; border-color: #b8beb7; background: #fff; }
-.constraints-status { min-height: 1.2rem; margin-bottom: 1rem; color: var(--muted); font-size: 0.78rem; }
+.week-number-picker { display: flex; align-items: center; justify-content: center; gap: 0.7rem; }
+.week-number-input { max-width: 10rem; min-height: 3.2rem; border: 2px solid #7e8580 !important; border-radius: 0.45rem !important; font-size: 1.25rem; font-weight: 700; text-align: center; }
+.week-number-arrow { display: grid; width: 2.4rem; height: 2.4rem; place-items: center; padding: 0; border: 1px solid #b8beb7; border-radius: 50%; color: var(--ink); background: #fff; font-size: 1.35rem; display: flex; justify-content: center;}
+.week-number-arrow:hover:not(:disabled) { border-color: var(--ink); background: #f2f4ed; transform: none; }
+.week-number-arrow:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.constraints-status { min-height: 1.2rem; color: var(--muted); font-size: 0.78rem; }
 .constraints-error { color: #9b3d31; }
 .constraint-mode-switch { display: inline-grid; grid-template-columns: 1fr 1fr; margin-bottom: 1rem; padding: 0.2rem; border: 1px solid #c3c8c0; border-radius: 0.35rem; background: #e8e9e2; }
 .constraint-mode-switch button { padding: 0.65rem 0.85rem; border-radius: 0.2rem; color: var(--muted); background: transparent; font-size: 0.76rem; font-weight: 700; }
 .constraint-mode-switch button.active { color: var(--ink); background: #fff; box-shadow: 0 1px 3px rgba(18, 59, 56, 0.12); }
 .constraint-mode-switch button:hover { transform: none; }
-.constraints-schedule { overflow: hidden; border: 1px solid #aeb5ad; background: #fafaf7; }
-.constraint-day { padding: 1.1rem 1.2rem 1.2rem; border-bottom: 1px solid #d7dad4; }
-.constraint-day:last-child { border-bottom: 0; }
-.constraint-day-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; }
-.constraint-day-heading h2 { margin: 0; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; font-weight: 400; }
+.constraints-schedule { display: grid; grid-template-columns: repeat(7, minmax(10rem, 1fr)); overflow-x: auto; border: 1px solid #aeb5ad; background: #fafaf7; }
+.constraint-day { min-width: 10rem; padding: 1.1rem 0.9rem 1.2rem; border-right: 1px solid #d7dad4; }
+.constraint-day:last-child { border-right: 0; }
+.constraint-day-heading { display: grid; gap: 0.35rem; min-height: 4.3rem; margin-bottom: 0.8rem; }
+.constraint-day-heading h2 { margin: 0; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: 1.4rem; font-weight: 400; }
 .constraint-day-heading span { color: var(--muted); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
-.constraint-shifts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; }
+.constraint-shifts { display: grid; gap: 0.6rem; }
 .constraint-shift { display: flex; align-items: flex-start; gap: 0.6rem; min-height: 4.4rem; padding: 0.7rem; border: 1px solid #cdd1ca; border-radius: 0.25rem; color: var(--ink); background: #fff; text-align: left; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
 .constraint-shift:hover:not(:disabled) { border-color: var(--ink); background: #f2f4ed; transform: translateY(-2px); }
 .constraint-shift.selected { border-color: #b9513d; color: #7e3028; background: #f8e2da; }

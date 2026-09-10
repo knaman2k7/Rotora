@@ -43,9 +43,9 @@ export async function updateDefaultEmployeeConstraints(request: Request, respons
     try {
         const result = await db.query(
             `UPDATE default_employee_constraints
-             SET "constraint" = $2
+             SET "constraints" = $2
              WHERE id = $1
-             RETURNING id, "constraint"`,
+             RETURNING id, "constraints"`,
             [id, constraints],
         );
 

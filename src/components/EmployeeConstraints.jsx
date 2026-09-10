@@ -137,7 +137,7 @@ export default function EmployeeConstraints() {
           console.log(data);
 
           if (!cancelled) {
-            setConstraints(data.defaultEmployeeConstraints?.constraint ?? [])
+            setConstraints(data.defaultEmployeeConstraints?.constraints ?? [])
             setHasSpecificConstraints(false)
           }
           return
@@ -148,7 +148,7 @@ export default function EmployeeConstraints() {
         const data = await response.json()
         const specificRow = data.specificEmployeeConstraints?.[0]
         if (!cancelled) {
-          setConstraints(specificRow?.constraint ?? [])
+          setConstraints(specificRow?.constraints ?? [])
           setHasSpecificConstraints(Boolean(specificRow))
         }
       } catch (loadError) {
@@ -174,6 +174,12 @@ export default function EmployeeConstraints() {
       }
       return [...next].sort((a, b) => a - b)
     })
+  }
+
+  function changeWeek(offset) {
+    const currentWeek = Number.parseInt(weekNo, 10)
+    const nextWeek = Number.isInteger(currentWeek) ? currentWeek + offset : 1
+    setWeekNo(String(Math.max(1, nextWeek)))
   }
 
   async function saveConstraints(event) {
@@ -281,10 +287,16 @@ export default function EmployeeConstraints() {
           <button disabled={!employeeId} className={constraintMode === 'specific' ? 'active' : ''} onClick={() => setConstraintMode('specific')} role="tab" type="button" aria-selected={constraintMode === 'specific'}>Specific constraint</button>
         </div>
 
-        <div className="constraints-controls">
+        <br/>
+
+        <div className={`constraints-controls ${constraintMode === 'specific' ? 'specific' : ''}`}>
           {constraintMode === 'specific' && <label>
             Week number
-            <input disabled={!employeeId} type="number" min="1" value={weekNo} onChange={(event) => setWeekNo(event.target.value)} />
+            <span className="week-number-picker">
+              <button className="week-number-arrow" disabled={!employeeId || isLoading} onClick={() => changeWeek(-1)} type="button" aria-label="Previous week">&#8592;</button>
+              <input className="week-number-input" disabled={!employeeId} inputMode="numeric" type="text" value={weekNo} onChange={(event) => setWeekNo(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault() }} />
+              <button className="week-number-arrow" disabled={!employeeId || isLoading} onClick={() => changeWeek(1)} type="button" aria-label="Next week">&#8594;</button>
+            </span>
           </label>}
         </div>
 

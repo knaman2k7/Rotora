@@ -24,8 +24,6 @@ export async function readSpecificEmployeeConstraints(request: Request, response
             [id, weekNo],
         );
 
-        console.log(result.rows);
-
         response.status(200).json({ specificEmployeeConstraints: result.rows });
     } catch (error) {
         console.error('Failed to read specific employee constraints:', error);
@@ -34,8 +32,8 @@ export async function readSpecificEmployeeConstraints(request: Request, response
 }
 
 export async function createSpecificEmployeeConstraints(request: Request, response: Response) {
-    const id = readPositiveInteger(request.body?.id);
-    const weekNo = readPositiveInteger(request.body?.weekNo);
+    const id = readPositiveInteger(request.params?.id);
+    const weekNo = readPositiveInteger(request.params?.weekNo);
     const constraints = request.body?.constraint;
 
     if (id === null || weekNo === null || !isIntegerArray(constraints)) {
