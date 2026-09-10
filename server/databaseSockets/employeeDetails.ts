@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 
 export async function readEmployeeNames(_request: Request, response: Response){
 
+
     try{
 
         const result = await db.query('SELECT id, name FROM employee_details ORDER BY name');

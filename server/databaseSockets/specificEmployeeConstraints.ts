@@ -20,9 +20,11 @@ export async function readSpecificEmployeeConstraints(request: Request, response
 
     try {
         const result = await db.query(
-            'SELECT id, "constraint", week_no FROM specific_employee_constraints WHERE id = $1 AND week_no = $2',
+            'SELECT id, "constraints", week_no FROM specific_employee_constraints WHERE id = $1 AND week_no = $2',
             [id, weekNo],
         );
+
+        console.log(result.rows);
 
         response.status(200).json({ specificEmployeeConstraints: result.rows });
     } catch (error) {
@@ -43,9 +45,9 @@ export async function createSpecificEmployeeConstraints(request: Request, respon
 
     try {
         const result = await db.query(
-            `INSERT INTO specific_employee_constraints (id, "constraint", week_no)
+            `INSERT INTO specific_employee_constraints (id, "constraints", week_no)
              VALUES ($1, $2, $3)
-             RETURNING id, "constraint", week_no`,
+             RETURNING id, "constraints", week_no`,
             [id, constraints, weekNo],
         );
 
@@ -71,9 +73,9 @@ export async function updateSpecificEmployeeConstraints(request: Request, respon
     try {
         const result = await db.query(
             `UPDATE specific_employee_constraints
-             SET "constraint" = $2
+             SET "constraints" = $2
              WHERE id = $1 AND week_no = $3
-             RETURNING id, "constraint", week_no`,
+             RETURNING id, "constraints", week_no`,
             [id, constraints, weekNo],
         );
 

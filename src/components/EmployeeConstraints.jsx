@@ -11,6 +11,14 @@ const sundayShifts = [
   { type: 1, label: '9am - 6pm', name: 'Full day' },
   { type: 2, label: '12pm - 6pm', name: 'Part-time' },
 ]
+const employeeTypes = [
+  { value: 'manager', label: 'Manager' },
+  { value: 'assistant-manager', label: 'Assistant-Manager' },
+  { value: 'supervisor', label: 'Supervisor' },
+  { value: 'keyholder', label: 'Keyholder' },
+  { value: 'sales-advisor', label: 'Sales-Advisor' },
+  { value: 'part-time', label: 'Part-time' },
+]
 
 function getInitialWeek() {
   const currentDate = new Date()
@@ -29,6 +37,13 @@ function getEffectiveConstraints(constraints) {
   return effective
 }
 
+function getEmployeeType(value) {
+  const normalizedValue = String(value ?? '').trim().toLowerCase()
+  return employeeTypes.some((employeeType) => employeeType.value === normalizedValue)
+    ? normalizedValue
+    : 'sales-advisor'
+}
+
 export default function EmployeeConstraints() {
   const [employees, setEmployees] = useState([])
   const [employeeId, setEmployeeId] = useState('')
@@ -39,7 +54,7 @@ export default function EmployeeConstraints() {
   const [employeeDetails, setEmployeeDetails] = useState({
     name: '',
     keyholder: false,
-    employeeType: 'Sales-Advisor',
+    employeeType: 'sales-advisor',
     contractHours: '',
     desiredHours: '',
   })
@@ -53,7 +68,7 @@ export default function EmployeeConstraints() {
     setEmployeeId(event.target.value)
     setConstraints([])
     setHasSpecificConstraints(false)
-    setEmployeeDetails({ name: '', keyholder: false, employeeType: 'Sales-Advisor', contractHours: '', desiredHours: '' })
+    setEmployeeDetails({ name: '', keyholder: false, employeeType: 'sales-advisor', contractHours: '', desiredHours: '' })
     setMessage('')
     setError('')
   }
@@ -89,7 +104,7 @@ export default function EmployeeConstraints() {
           setEmployeeDetails({
             name: data.employee.name ?? '',
             keyholder: Boolean(data.employee.keyholder),
-            employeeType: data.employee.employee_type ?? 'Sales-Advisor',
+            employeeType: getEmployeeType(data.employee.employee_type),
             contractHours: data.employee.contract_hours ?? '',
             desiredHours: data.employee.desired_hours ?? '',
           })
@@ -118,6 +133,9 @@ export default function EmployeeConstraints() {
           const response = await fetch(`/api/defaultEmployeeConstraints/${id}`)
           if (!response.ok && response.status !== 404) throw new Error('Unable to load default constraints.')
           const data = response.ok ? await response.json() : {}
+
+          console.log(data);
+
           if (!cancelled) {
             setConstraints(data.defaultEmployeeConstraints?.constraint ?? [])
             setHasSpecificConstraints(false)
@@ -247,7 +265,7 @@ export default function EmployeeConstraints() {
           <label>
             Employee type
             <select disabled={!employeeId || isSaving} value={employeeDetails.employeeType} onChange={(event) => setEmployeeDetails({ ...employeeDetails, employeeType: event.target.value })}>
-              <option>Manager</option><option>Assistant-Manager</option><option>Supervisor</option><option>Keyholder</option><option>Sales-Advisor</option>
+              {employeeTypes.map((employeeType) => <option key={employeeType.value} value={employeeType.value}>{employeeType.label}</option>)}
             </select>
           </label>
           <label>Contract hours<input disabled={!employeeId || isSaving} type="number" min="0" step="0.5" value={employeeDetails.contractHours} onChange={(event) => setEmployeeDetails({ ...employeeDetails, contractHours: event.target.value })} /></label>

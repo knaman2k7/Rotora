@@ -12,7 +12,7 @@ export async function readDefaultEmployeeConstraints(request: Request, response:
 
     try {
         const result = await db.query(
-            'SELECT id, "constraint" FROM default_employee_constraints WHERE id = $1',
+            'SELECT id, "constraints" FROM default_employee_constraints WHERE id = $1',
             [id],
         );
 
