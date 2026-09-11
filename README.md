@@ -1,4 +1,4 @@
-## Shift Encoding
+## Important Meta-Information about system
 
 Store opening times:
 Monday - Saturday: 10am to 8pm
@@ -17,6 +17,19 @@ Sunday has 2 type of shifts available:
 9am to 6pm(used by manager/assistant-manager/supervisor)
 12pm to 6pm(part-time)
 
+Employees are of the categories:
+- Manager(Full Time)
+- Assistant Manager(Full Time)
+- Supervisor(Full Time)
+- Keyholder(Part Time)
+- Sales-Advisor(Part Time)
+
+Full time employees can only do 8 hour shifts
+Part time employees can do 6 or 8 hour shifts
+
+
+## Shift Encoding
+
 Shift encoding stored in database (xy):
 x = day -- Monday = 1; Tuesday = 2...
 y = shift type -- morning 8 hour = 1; morning 6 hour = 2; evening 8 = 3; evening 6 = 4 / for sunday 8 hour
@@ -26,6 +39,31 @@ Shifts, when employees are NOT available, are stored in the database as constrai
 Employees have two types of constraints within the database:
 - specific -- specific constraints given for a specific week
 - default -- constraints assumed for every week, if specific constraint not given for given week
+
+
+## Week's Constraints encoding
+
+The rota's structure also is a constraint, these include:
+- how many total hours in the week are given - (this can be controlled by how many 6 or 8 hour shifts are allocated)
+
+#### Constraint 1 - week's shifts structure
+
+A day can have varible employees doing a shift, examples days include - but are not limited to:
+- 2 x morning 8 hours + 1 x evening 8 hours
+- 2 x morning 8 hours + 2 x evening 8 hours
+
+rota constraints are stored in the database as (nxy):
+n = number of people doing that shift
+xy = normal shift encoding
+
+#### Constraint 2 - specific employee on specific shift
+
+A specific employee could be wanted for a specific shift throughout the week
+
+this is encoded as xy(id) using xy * 100 + id:
+xy = shift encoding
+id = employee_id in database
+
 
 
 ## Front-end - employee constraints

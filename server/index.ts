@@ -14,6 +14,16 @@ import {
 	readSpecificEmployeeConstraints,
 	updateSpecificEmployeeConstraints,
 } from './databaseSockets/specificEmployeeConstraints.ts';
+import {
+	readDefaultWeekConstraints,
+	updateDefaultWeekConstraints,
+} from './databaseSockets/defaultWeekConstraints.ts';
+import {
+	createSpecificWeekConstraints,
+	deleteSpecificWeekConstraints,
+	readSpecificWeekConstraints,
+	updateSpecificWeekConstraints,
+} from './databaseSockets/specificWeekConstraints.ts';
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -45,6 +55,14 @@ app.get('/api/specificEmployeeConstraints/:id/:weekNo', readSpecificEmployeeCons
 app.post('/api/specificEmployeeConstraints/:id/:weekNo', createSpecificEmployeeConstraints);
 app.put('/api/specificEmployeeConstraints/:id/:weekNo', updateSpecificEmployeeConstraints);
 app.delete('/api/specificEmployeeConstraints/:id/:weekNo', deleteSpecificEmployeeConstraints);
+
+// rota structure constraints
+app.get('/api/defaultWeekConstraints', readDefaultWeekConstraints);
+app.put('/api/defaultWeekConstraints', updateDefaultWeekConstraints);
+app.get('/api/specificWeekConstraints/:weekNo', readSpecificWeekConstraints);
+app.post('/api/specificWeekConstraints/:weekNo', createSpecificWeekConstraints);
+app.put('/api/specificWeekConstraints/:weekNo', updateSpecificWeekConstraints);
+app.delete('/api/specificWeekConstraints/:weekNo', deleteSpecificWeekConstraints);
 
 
 app.listen(port, () => {

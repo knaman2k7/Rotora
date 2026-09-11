@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const weekdayShifts = [
-  { type: 1, label: '10am - 7pm', name: 'Morning · 8 hour' },
-  { type: 2, label: '10am - 4pm', name: 'Morning · 6 hour' },
-  { type: 3, label: '11am - 8pm', name: 'Evening · 8 hour' },
-  { type: 4, label: '2pm - 8pm', name: 'Evening · 6 hour' },
+  { type: 1, label: '10am - 7pm', name: 'Morning · 8 hour', isSixHour: false },
+  { type: 2, label: '10am - 4pm', name: 'Morning · 6 hour', isSixHour: true },
+  { type: 3, label: '11am - 8pm', name: 'Evening · 8 hour', isSixHour: false },
+  { type: 4, label: '2pm - 8pm', name: 'Evening · 6 hour', isSixHour: true },
 ]
 const sundayShifts = [
-  { type: 1, label: '9am - 6pm', name: 'Full day' },
-  { type: 2, label: '12pm - 6pm', name: 'Part-time' },
+  { type: 1, label: '9am - 6pm', name: 'Full day', isSixHour: false },
+  { type: 2, label: '12pm - 6pm', name: 'Part-time', isSixHour: true },
 ]
 const employeeTypes = [
   { value: 'manager', label: 'Manager' },
@@ -17,8 +17,8 @@ const employeeTypes = [
   { value: 'supervisor', label: 'Supervisor' },
   { value: 'keyholder', label: 'Keyholder' },
   { value: 'sales-advisor', label: 'Sales-Advisor' },
-  { value: 'part-time', label: 'Part-time' },
 ]
+const fullTimeEmployeeTypes = new Set(['manager', 'assistant-manager', 'supervisor'])
 
 function getInitialWeek() {
   const currentDate = new Date()
@@ -63,6 +63,7 @@ export default function EmployeeConstraints() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const effectiveConstraints = useMemo(() => getEffectiveConstraints(constraints), [constraints])
+  const isFullTimeEmployee = fullTimeEmployeeTypes.has(employeeDetails.employeeType)
 
   function selectEmployee(event) {
     setEmployeeId(event.target.value)
@@ -195,14 +196,18 @@ export default function EmployeeConstraints() {
     setMessage('')
     try {
       const isSpecific = constraintMode === 'specific'
-      const response = await fetch(isSpecific ? `/api/specificEmployeeConstraints/${id}/${week}` : `/api/defaultEmployeeConstraints/${id}`, {
+      const specificUrl = `/api/specificEmployeeConstraints/${id}/${week}`
+      const shouldDeleteSpecificConstraints = isSpecific && hasSpecificConstraints && constraints.length === 0
+      const response = await fetch(isSpecific ? specificUrl : `/api/defaultEmployeeConstraints/${id}`, shouldDeleteSpecificConstraints ? {
+        method: 'DELETE',
+      } : {
         method: isSpecific ? (hasSpecificConstraints ? 'PUT' : 'POST') : 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(isSpecific ? { id, weekNo: week, constraint: constraints } : { constraint: constraints }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.message || 'Unable to save constraints.')
-      setHasSpecificConstraints(isSpecific)
+      setHasSpecificConstraints(isSpecific && !shouldDeleteSpecificConstraints)
       setMessage(`${isSpecific ? 'Specific' : 'Default'} constraints saved.`)
     } catch (saveError) {
       setError(saveError.message || 'Unable to save constraints.')
@@ -308,7 +313,8 @@ export default function EmployeeConstraints() {
 
         <div className="constraints-schedule" aria-label="Employee unavailable shifts">
           {weekDays.map((day, dayIndex) => {
-            const shifts = dayIndex === 6 ? sundayShifts : weekdayShifts
+            const shifts = (dayIndex === 6 ? sundayShifts : weekdayShifts)
+              .filter((shift) => !isFullTimeEmployee || !shift.isSixHour)
             return (
               <section className="constraint-day" key={day}>
                 <div className="constraint-day-heading">
