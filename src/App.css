@@ -66,15 +66,17 @@ button span { font-size: 1.3rem; }
 .employee-details-form select { font: inherit; font-size: 0.82rem; }
 .keyholder-control { display: flex !important; align-items: center; justify-content: space-between; min-height: 2.85rem; padding: 0 0.8rem; border: 1px solid #b8beb7; border-radius: 0.35rem; background: #fff; }
 .keyholder-control input { width: 1.1rem; height: 1.1rem; accent-color: var(--ink); }
-.details-save { min-height: 2.85rem; padding: 0.75rem 0.9rem; color: #f8f7f2; background: var(--ink); font-size: 0.76rem; white-space: nowrap; }
+.details-save { grid-column: 1 / -1; min-height: 2.85rem; padding: 0.75rem 0.9rem; color: #f8f7f2; background: var(--ink); font-size: 0.76rem; white-space: nowrap; justify-self: end; }
 .details-save:hover:not(:disabled) { background: #1d504b; transform: translateY(-2px); }
 .constraints-editor { gap: 0; }
 .constraints-controls { display: grid; grid-template-columns: minmax(12rem, 0.7fr) minmax(12rem, 0.7fr) 1fr; align-items: end; gap: 1rem; margin-bottom: 1.1rem; }
 .constraints-controls label { display: grid; gap: 0.45rem; }
-.constraints-controls.specific { display: flex; justify-content: center; }
+.constraints-controls.specific { display: flex; justify-content: center; gap: 2rem; }
 .constraints-controls.specific label { justify-items: center; }
 .constraints-controls input { margin: 0; padding: 0.75rem 0.8rem; border-color: #b8beb7; background: #fff; }
 .week-number-picker { display: flex; align-items: center; justify-content: center; gap: 0.7rem; }
+.annual-leave-toggle { display: flex !important; flex-direction: row !important; align-items: center; gap: 0.6rem; min-height: 2.85rem; padding: 0 0.8rem; border: 1px solid #b8beb7; border-radius: 0.35rem; background: #fff; }
+.annual-leave-toggle input { width: 1.1rem; height: 1.1rem; accent-color: var(--ink); }
 .week-number-input { max-width: 10rem; min-height: 3.2rem; border: 2px solid #7e8580 !important; border-radius: 0.45rem !important; font-size: 1.25rem; font-weight: 700; text-align: center; }
 .week-number-arrow { display: grid; width: 2.4rem; height: 2.4rem; place-items: center; padding: 0; border: 1px solid #b8beb7; border-radius: 50%; color: var(--ink); background: #fff; font-size: 1.35rem; display: flex; justify-content: center;}
 .week-number-arrow:hover:not(:disabled) { border-color: var(--ink); background: #f2f4ed; transform: none; }
@@ -86,6 +88,10 @@ button span { font-size: 1.3rem; }
 .constraint-mode-switch button.active { color: var(--ink); background: #fff; box-shadow: 0 1px 3px rgba(18, 59, 56, 0.12); }
 .constraint-mode-switch button:hover { transform: none; }
 .constraints-schedule { display: grid; grid-template-columns: repeat(7, minmax(10rem, 1fr)); overflow-x: auto; border: 1px solid #aeb5ad; background: #fafaf7; }
+.constraints-empty-state { display: grid; justify-items: center; gap: 1rem; padding: 4rem 1rem; border: 1px solid #aeb5ad; background: #fafaf7; text-align: center; }
+.constraints-empty-state p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.constraints-empty-state button { padding: 0.85rem 1rem; color: #f8f7f2; background: var(--ink); font-size: 0.78rem; }
+.constraints-empty-state button:hover { background: #1d504b; transform: translateY(-2px); }
 .constraint-day { min-width: 10rem; padding: 1.1rem 0.9rem 1.2rem; border-right: 1px solid #d7dad4; }
 .constraint-day:last-child { border-right: 0; }
 .constraint-day-heading { display: grid; gap: 0.35rem; min-height: 4.3rem; margin-bottom: 0.8rem; }
@@ -101,10 +107,45 @@ button span { font-size: 1.3rem; }
 .constraint-shift strong { font-size: 0.78rem; }
 .constraint-shift small { margin-top: 0.3rem; color: var(--muted); font-size: 0.68rem; font-weight: 500; line-height: 1.25; }
 .constraint-shift.selected small { color: #9b5144; }
-.constraints-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.3rem; }
-.constraints-footer p { margin: 0; color: var(--muted); font-size: 0.78rem; }
+.constraints-footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; margin-top: 1.3rem; }
+.constraints-footer-center { justify-self: center; }
+.constraints-footer-save { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; justify-self: end; }
 .constraints-save { padding: 0.85rem 1rem; color: #f8f7f2; background: var(--ink); font-size: 0.78rem; }
 .constraints-save:hover:not(:disabled) { background: #1d504b; transform: translateY(-2px); }
+.constraints-delete { padding: 0.85rem 1rem; color: #8b3028; background: #f8e2de; border: 1px solid #d39a91; font-size: 0.78rem; }
+.constraints-delete:hover:not(:disabled) { background: #f2cec7; transform: translateY(-2px); }
+.save-result { padding: 0.72rem 0.85rem; border: 1px solid; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.save-result-success { border-color: #8bb9a5; color: #245f4d; background: #e1f1e8; }
+.save-result-error { border-color: #d39a91; color: #8b3028; background: #f8e2de; }
+.week-constraints-view { max-width: 88rem; margin: 0 auto; }
+.week-structure-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid #aeb5ad; background: #fafaf7; }
+.week-structure-day { min-width: 0; padding: 1.1rem 0.55rem 1.2rem; border-right: 1px solid #d7dad4; }
+.week-structure-day:last-child { border-right: 0; }
+.week-shift-list { display: grid; gap: 0.65rem; }
+.week-shift-row { display: grid; gap: 0.55rem; padding: 0.7rem; border: 1px solid #cdd1ca; border-radius: 0.25rem; background: #fff; }
+.week-shift-row > div:first-child { min-height: 2.4rem; }
+.week-shift-row strong,
+.week-shift-row small { display: block; }
+.week-shift-row strong { color: var(--ink); font-size: 0.78rem; }
+.week-shift-row small { margin-top: 0.25rem; color: var(--muted); font-size: 0.68rem; line-height: 1.25; }
+.shift-count-control { display: grid; grid-template-columns: 2rem 1fr 2rem; align-items: center; gap: 0.4rem; justify-content: center;}
+.shift-count-control button { width: 2rem; height: 1rem; padding: 0; border: 1px solid #b8beb7; border-radius: 0.5rem; color: var(--ink); background: #f8f7f2; font-size: 0.9rem; line-height: 0.7; justify-content: center; }
+.shift-count-control button:hover:not(:disabled),
+.employee-selection-button:hover:not(:disabled) { border-color: var(--ink); background: #c1d3b6; transform: none; }
+.shift-count-control output { color: var(--ink); font-size: 1rem; font-weight: 700; text-align: center; }
+.employee-list-toggle { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; width: 100%; min-height: 1rem; padding: 0.25rem 0; border-top: 1px solid #e2e4df; border-radius: 0; color: var(--muted); background: transparent; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; line-height: 1.1; text-align: left; text-transform: uppercase; }
+.employee-list-toggle:hover { color: var(--ink); background: transparent; transform: none; }
+.employee-list-arrow { display: inline-block; font-size: 1rem; line-height: 0.7; transition: transform 160ms ease; }
+.employee-list-arrow.open { transform: rotate(180deg); }
+.employees-selected-texted { font-size: 0.6rem; margin-top: 10px; margin-bottom: 0px;}
+.shift-employee-picker { display: grid; gap: 0.35rem; padding-top: 0.1rem; justify-content: center; }
+.employee-select-row { display: grid; grid-template-columns: minmax(0, 1fr) 1.25rem; align-items: center; gap: 0.3rem; justify-content: center; }
+.shift-employee-picker select { width: 100%; min-width: 0; padding: 0.35rem; border: 1px solid #b8beb7; border-radius: 0.25rem; color: var(--ink); background: #fff; font: inherit; font-size: 0.68rem; }
+.remove-employee-button { width: 1.25rem; height: 1.25rem; padding: 0; border: 1px solid #b8beb7; border-radius: 50%; color: var(--muted); background: #f8f7f2; font-size: 0.9rem; line-height: 1; justify-content: center; }
+.remove-employee-button:hover:not(:disabled) { border-color: #9b3d31; color: #8b3028; background: #f8e2de; transform: none; }
+.employee-selection-button { width: 100%; height: 1.25rem; padding: 0; border: 1px solid #b8beb7; border-radius: 0.45rem; color: var(--ink); background: #f8f7f2; font-size: 0.95rem; line-height: 1; justify-content: center; }
+.constraints-unsaved { color: #9b3d31; }
+.constraints-saved { color: #2d705d; }
 .scheduler-header { display: flex; align-items: center; justify-content: center; gap: clamp(1rem, 4vw, 4rem); margin: 0 auto 3.5rem; }
 .week-heading { min-width: 13rem; text-align: center; }
 .week-heading .eyebrow { margin-bottom: 0.35rem; color: var(--muted); }
@@ -139,6 +180,7 @@ button span { font-size: 1.3rem; }
 	.employee-details-form { grid-template-columns: 1fr 1fr; }
 	.details-save { grid-column: 1 / -1; }
 	.constraints-controls { grid-template-columns: 1fr 1fr; }
+	.week-structure-grid { grid-template-columns: repeat(7, minmax(15rem, 1fr)); overflow-x: auto; }
 	.constraint-shifts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.schedule-day-labels,
 	.schedule-grid { min-width: 35rem; }
@@ -149,6 +191,10 @@ button span { font-size: 1.3rem; }
 	.employee-details-form,
 	.constraints-controls { grid-template-columns: 1fr; }
 	.details-save { grid-column: auto; }
-	.constraints-footer { align-items: stretch; flex-direction: column; }
-	.constraints-save { width: 100%; }
+	.constraints-footer { grid-template-columns: 1fr; }
+	.constraints-footer > span[aria-hidden] { display: none; }
+	.constraints-footer-center { justify-self: stretch; }
+	.constraints-footer-save { justify-self: stretch; flex-direction: column; align-items: stretch; }
+	.constraints-save, .constraints-delete { width: 100%; }
+	.save-result { text-align: center; }
 }

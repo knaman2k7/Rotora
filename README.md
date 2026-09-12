@@ -8,8 +8,8 @@ Sunday: 12pm to 6pm
 6 hour shifts have no lunch(for simplicity sake)
 
 Monday - Saturday has 4 type of shifts available:
-morning 8 hour: 10am to 7pm
-morning 6 hour: 10am to 4pm
+morning 8 hour: 10am to 7pm (Wednesday: 8am to 5pm)
+morning 6 hour: 10am to 4pm (Wednesday: 8am to 2pm)
 evening 8 hour: 11am to 8pm
 evening 6 hour: 2pm to 8pm
 

@@ -24,6 +24,12 @@ import {
 	readSpecificWeekConstraints,
 	updateSpecificWeekConstraints,
 } from './databaseSockets/specificWeekConstraints.ts';
+import {
+	createAnnualLeaveHours,
+	deleteAnnualLeaveHours,
+	readAnnualLeaveHours,
+	updateAnnualLeaveHours,
+} from './databaseSockets/annualLeaveHours.ts';
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -56,13 +62,21 @@ app.post('/api/specificEmployeeConstraints/:id/:weekNo', createSpecificEmployeeC
 app.put('/api/specificEmployeeConstraints/:id/:weekNo', updateSpecificEmployeeConstraints);
 app.delete('/api/specificEmployeeConstraints/:id/:weekNo', deleteSpecificEmployeeConstraints);
 
-// rota structure constraints
+// default rota structure constraints
 app.get('/api/defaultWeekConstraints', readDefaultWeekConstraints);
 app.put('/api/defaultWeekConstraints', updateDefaultWeekConstraints);
+
+// specific rota structure constraints
 app.get('/api/specificWeekConstraints/:weekNo', readSpecificWeekConstraints);
 app.post('/api/specificWeekConstraints/:weekNo', createSpecificWeekConstraints);
 app.put('/api/specificWeekConstraints/:weekNo', updateSpecificWeekConstraints);
 app.delete('/api/specificWeekConstraints/:weekNo', deleteSpecificWeekConstraints);
+
+// annual leave hours override for a specific employee's week
+app.get('/api/annualLeaveHours/:id/:weekNo', readAnnualLeaveHours);
+app.post('/api/annualLeaveHours/:id/:weekNo', createAnnualLeaveHours);
+app.put('/api/annualLeaveHours/:id/:weekNo', updateAnnualLeaveHours);
+app.delete('/api/annualLeaveHours/:id/:weekNo', deleteAnnualLeaveHours);
 
 
 app.listen(port, () => {

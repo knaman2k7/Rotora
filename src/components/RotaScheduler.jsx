@@ -27,7 +27,7 @@ export default function RotaScheduler() {
         </div>
       </div>
 
-      <button className="regenerate-button" type="button">Re-generate</button>
+      <button className="regenerate-button" type="button">Re/generate</button>
     </div>
   )
 }
