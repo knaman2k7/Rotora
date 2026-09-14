@@ -60,7 +60,7 @@ export async function updateDefaultWeekConstraints(request: Request, response: R
     try {
         const result = await db.query(
             `UPDATE default_week_constraints
-             SET desired_total_hours = $1,
+             SET desired_total_hours = 180,
                  week_constraints = $2,
                  assigned_shifts = $3
              RETURNING desired_total_hours, week_constraints, assigned_shifts`,

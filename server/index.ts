@@ -4,6 +4,7 @@ import login from './login/login.ts';
 
 import { readWeekRota, regenerateWeekRota } from './databaseSockets/weekRota.ts';
 import { readEmployeeDetails, readEmployeeNames, updateEmployeeDetails } from './databaseSockets/employeeDetails.ts';
+import { newEmployee } from './databaseSockets/newEmployee.ts';
 import {
 	readDefaultEmployeeConstraints,
 	updateDefaultEmployeeConstraints,
@@ -35,6 +36,19 @@ const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
 app.use(express.json());
+app.use((request, response, next) => {
+	const origin = request.headers.origin ?? '*';
+	response.setHeader('Access-Control-Allow-Origin', origin === '*' ? '*' : origin);
+	response.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+	response.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+	if (request.method === 'OPTIONS') {
+		response.sendStatus(204);
+		return;
+	}
+
+	next();
+});
 
 
 // login functionality
@@ -49,6 +63,7 @@ app.post("/api/regenerateWeekRota/:weekNo", regenerateWeekRota);
 
 // employee's details
 app.get("/api/employees", readEmployeeNames);
+app.post("/api/newEmployee", newEmployee);
 app.get("/api/employeeDetail/:id", readEmployeeDetails);
 app.post("/api/updateEmployeeDetail", updateEmployeeDetails);
 

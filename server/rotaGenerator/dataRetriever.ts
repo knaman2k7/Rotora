@@ -4,25 +4,24 @@ import db from "../database/db.ts";
 
 async function retrieveData(weekNo: number): Promise<Object>{
 
-    var returnVal: Object = {};
-
     // get week constraints
     const workingRota: Object = await getWeekConstraints(weekNo);
 
     // get employee details
-    const { CDhours, fullTimeEmployees, keyholders } = await getEmployeeDetails(weekNo);
+    const { CDhours: CCDhours, fullTimeEmployees, keyholders } = await getEmployeeDetails(weekNo);
 
     // get employee constraints
-    const availability: Object = await getEmployeeConstraints(weekNo, keyholders, CDhours);
+    const availability: Record<string, { keyholder: number[][], all: number[][] }> = await getEmployeeConstraints(weekNo, keyholders, CCDhours);
 
+    
     // delete any employees if they are on annual leave
 
 
-    returnVal = {workingRota, availability, CDhours, fullTimeEmployees}
+    console.log(util.inspect(
+        {workingRota, availability, CDhours: CCDhours, fullTimeEmployees}, 
+        { depth: null }));
 
-    console.log(util.inspect(returnVal, { depth: null }));
-
-    return returnVal;
+    return {workingRota, availability, CDhours: CCDhours, fullTimeEmployees};
 
 }
 
@@ -150,7 +149,8 @@ interface DayAvailability {
     all: [number[], number[]];
 }
 
-async function getEmployeeConstraints(weekNo: number, keyholders: number[], CDhours: Object): Promise<Object>{
+async function getEmployeeConstraints(weekNo: number, keyholders: number[], CDhours: Object): 
+    Promise<Record<string, { keyholder: number[][], all: number[][] }>>{
 
     const days: String[] = ['Mon', 'Tue','Wed','Thu','Fri','Sat','Sun'];
     const day: Record<number, string> = {

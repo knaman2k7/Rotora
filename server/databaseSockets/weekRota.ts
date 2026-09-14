@@ -44,7 +44,8 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
     }
     catch (err){
-        response.status(500).json({message: 'Invalid Week Number'});
+
+        response.status(400).json({message: err});
     }
 
 }

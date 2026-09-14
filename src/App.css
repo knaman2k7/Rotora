@@ -36,6 +36,19 @@ button:disabled { cursor: wait; opacity: 0.65; }
 button span { font-size: 1.3rem; }
 .form-message { margin: 0 0 0.5rem; padding: 0.75rem; border-radius: 0.35rem; font-size: 0.82rem; }
 .form-message.error { color: #8b2d2d; background: #fce9e5; }
+.form-message.success { color: #245f4d; background: #e1f1e8; }
+.secondary-link { color: var(--ink); text-decoration: none; font-size: 0.8rem; font-weight: 700; }
+.secondary-link:hover { text-decoration: underline; }
+.secondary-link-nav { display: block; color: var(--ink); text-decoration: none; }
+.add-employee-page { max-width: 52rem; margin: 0 auto; }
+.add-employee-panel { padding: 1.25rem; border: 1px solid #aeb5ad; background: #eeeee8; }
+.add-employee-form { display: grid; gap: 1rem; }
+.add-employee-form label { display: grid; gap: 0.45rem; }
+.add-employee-form input:not([type='checkbox']),
+.add-employee-form select { width: 100%; margin: 0; padding: 0.75rem 0.8rem; border: 1px solid #b8beb7; border-radius: 0.35rem; color: var(--ink); background: #fff; }
+.add-employee-actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.5rem; }
+.primary-action { padding: 0.85rem 1.1rem; color: #f8f7f2; background: var(--ink); }
+.primary-action:hover:not(:disabled) { background: #1d504b; transform: translateY(-2px); }
 
 .scheduler-shell { display: grid; grid-template-columns: 14rem minmax(0, 1fr); min-height: 100vh; color: var(--ink); background: #f4f3ed; }
 .scheduler-sidebar { display: flex; flex-direction: column; min-height: 100vh; padding: 2.2rem 1.2rem 1.5rem; border-right: 1px solid #cdd1ca; background: #eeeee8; }

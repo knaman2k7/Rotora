@@ -1,27 +1,21 @@
-class rotaFramework{
+export default class RotaFramework{
 
     private workingRota: Object;
-    private keyholderAvailability: number[];
-    private allAvailability: number[];
+    private availability: Record<string, { keyholder: number[][], all: number[][] }>;
+    private CCDhours: Object;
     private fullTimeEmployees: number[];
-    private contractHours: Object;
-    private currentHours: Object;
-    private desiredHours: Object;
+    
 
-    constructor(shiftsAvailable: Object, 
-        keyholderAvailability: number[], 
-        allAvailability: number[],
-        fullTimeEmployees: number[],
-        contractHours: Object,
-        desiredHours: Object
+
+    constructor(workingRota: Object, 
+        availability: Record<string, { keyholder: number[][], all: number[][] }>,
+        CCDhours: Object,
+        fullTimeEmployees: number[]
     ){
-        this.workingRota = shiftsAvailable;
-        this.keyholderAvailability = keyholderAvailability;
-        this.allAvailability = allAvailability;
+        this.workingRota = workingRota;
+        this.availability = availability;
         this.fullTimeEmployees = fullTimeEmployees;
-        this.contractHours = contractHours;
-        this.currentHours = Object.entries(contractHours).map(e => null);
-        this.desiredHours = desiredHours;
+        this.CCDhours = CCDhours;
     }
 
     // returns true if the rota is now filled/ready
@@ -46,6 +40,28 @@ class rotaFramework{
 
     }
 
+    public getDayShift(day: number): Object{
 
+        return Object.fromEntries( Object.entries(this.workingRota).filter(
+            ([key]) => Math.floor( Number(key) / 10 ) == day
+        ) )
+
+    }
+
+    public getKeyholderAvailability(day: string): number[][]{
+        return this.availability[day]['keyholder'];
+    }
+
+    public getAllAvailability(day: string): number[][]{
+        return this.availability[day]['all'];
+    }
+
+    public getFullTimeEmployees(){
+        return this.fullTimeEmployees;
+    }
+
+    public getFinalRota(){
+        return this.workingRota;
+    }
 
 }

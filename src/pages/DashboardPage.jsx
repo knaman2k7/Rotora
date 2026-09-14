@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../app/useAuth.js'
 import EmployeeConstraints from '../components/EmployeeConstraints.jsx'
 import RotaScheduler from '../components/RotaScheduler.jsx'
@@ -16,6 +17,7 @@ export default function DashboardPage() {
           <button className={`scheduler-nav-item ${activeView === 'scheduler' ? 'active' : ''}`} type="button" onClick={() => setActiveView('scheduler')}>Rotora Scheduler</button>
           <button className={`scheduler-nav-item ${activeView === 'constraints' ? 'active' : ''}`} type="button" onClick={() => setActiveView('constraints')}>Employee Constraints</button>
           <button className={`scheduler-nav-item ${activeView === 'week-constraints' ? 'active' : ''}`} type="button" onClick={() => setActiveView('week-constraints')}>Week&apos;s Constraints</button>
+          <Link className="scheduler-nav-item secondary-link-nav" to="/employees/new">Add Employee</Link>
         </nav>
         <button className="scheduler-logout" type="button" onClick={logout}>Log out</button>
       </aside>

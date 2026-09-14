@@ -447,7 +447,11 @@ export default function EmployeeConstraints() {
         </div> : <div className="constraints-schedule" aria-label="Employee unavailable shifts">
           {weekDays.map((day, dayIndex) => {
             const shifts = (dayIndex === 6 ? sundayShifts : dayIndex === 2 ? wednesdayShifts : weekdayShifts)
-              .filter((shift) => !isFullTimeEmployee || !shift.isSixHour)
+              .filter((shift) => {
+                if (!shift.isSixHour) return true
+                if (dayIndex === 6) return !isFullTimeEmployee
+                return !isFullTimeEmployee && employeeDetails.employeeType !== 'sales-advisor'
+              })
             return (
               <section className="constraint-day" key={day}>
                 <div className="constraint-day-heading">
