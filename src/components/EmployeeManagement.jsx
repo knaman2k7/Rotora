@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { apiFetch } from '../app/auth.js'
 
 const employeeTypes = [
   { value: 'manager', label: 'Manager' },
@@ -7,6 +7,8 @@ const employeeTypes = [
   { value: 'supervisor', label: 'Supervisor' },
   { value: 'sales-advisor', label: 'Sales-Advisor' },
 ]
+
+const employeeTypeLabels = Object.fromEntries(employeeTypes.map((type) => [type.value, type.label]))
 
 const fullTimeEmployeeTypes = new Set(['manager', 'assistant-manager', 'supervisor'])
 
@@ -18,9 +20,12 @@ const initialForm = {
   desiredHours: '',
 }
 
-const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000' : ''
+export default function EmployeeManagement() {
+  const [employees, setEmployees] = useState([])
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true)
+  const [listError, setListError] = useState('')
+  const [deletingId, setDeletingId] = useState(null)
 
-export default function AddEmployeePage() {
   const [form, setForm] = useState(initialForm)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -30,6 +35,25 @@ export default function AddEmployeePage() {
     () => fullTimeEmployeeTypes.has(form.employeeType),
     [form.employeeType],
   )
+
+  async function loadEmployees() {
+    setIsLoadingEmployees(true)
+    setListError('')
+    try {
+      const response = await apiFetch('/api/employees')
+      if (!response.ok) throw new Error('Unable to load employees.')
+      const data = await response.json()
+      setEmployees(data.employees ?? [])
+    } catch (loadError) {
+      setListError(loadError.message || 'Unable to load employees.')
+    } finally {
+      setIsLoadingEmployees(false)
+    }
+  }
+
+  useEffect(() => {
+    loadEmployees()
+  }, [])
 
   function handleChange(event) {
     const { name, value, type, checked } = event.target
@@ -72,7 +96,7 @@ export default function AddEmployeePage() {
         employeeType: form.employeeType,
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/newEmployee`, {
+      const response = await apiFetch('/api/newEmployee', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -85,6 +109,7 @@ export default function AddEmployeePage() {
 
       setSuccess('Employee added successfully.')
       setForm(initialForm)
+      loadEmployees()
     } catch (submitError) {
       setError(submitError.message || 'Unable to create employee.')
     } finally {
@@ -92,15 +117,38 @@ export default function AddEmployeePage() {
     }
   }
 
+  async function handleDelete(employee) {
+    const confirmed = window.confirm(`Delete ${employee.name}? This removes their details, constraints, and annual leave records.`)
+    if (!confirmed) return
+
+    setDeletingId(employee.id)
+    setListError('')
+    try {
+      const response = await apiFetch(`/api/employee/${employee.id}`, { method: 'DELETE' })
+      if (!response.ok && response.status !== 404) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || 'Unable to delete employee.')
+      }
+      setEmployees((current) => current.filter((item) => item.id !== employee.id))
+    } catch (deleteError) {
+      setListError(deleteError.message || 'Unable to delete employee.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
-    <main className="add-employee-page">
+    <div className="employee-constraints-view">
       <header className="employee-constraints-heading">
         <p className="eyebrow">Rotora</p>
-        <h1>Add employee</h1>
-        <p>Create a new team member and assign their availability profile.</p>
+        <h1>Employee Management</h1>
+        <p>Add new team members or remove employees who have left.</p>
       </header>
 
       <section className="add-employee-panel">
+        <div className="section-heading">
+          <div><p className="eyebrow">New team member</p><h2>Add employee</h2></div>
+        </div>
         <form className="add-employee-form" onSubmit={handleSubmit}>
           <label>
             Employee name
@@ -176,13 +224,52 @@ export default function AddEmployeePage() {
           {success && <p className="form-message success" role="status">{success}</p>}
 
           <div className="add-employee-actions">
-            <Link className="secondary-link" to="/dashboard">Back to dashboard</Link>
+            <span aria-hidden="true" />
             <button className="primary-action" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Add employee'}
             </button>
           </div>
         </form>
       </section>
-    </main>
+
+      <section className="employee-list-panel">
+        <div className="section-heading">
+          <div><p className="eyebrow">Current roster</p><h2>Employees</h2></div>
+        </div>
+
+        {isLoadingEmployees && <p className="constraints-status">Loading employees...</p>}
+        {!isLoadingEmployees && listError && <p className="form-message error" role="alert">{listError}</p>}
+        {!isLoadingEmployees && !listError && employees.length === 0 && (
+          <div className="constraints-empty-state">
+            <p>No employees yet.</p>
+          </div>
+        )}
+
+        {!isLoadingEmployees && employees.length > 0 && (
+          <ul className="employee-management-list">
+            {employees.map((employee) => (
+              <li className="employee-management-row" key={employee.id}>
+                <div className="employee-management-info">
+                  <strong>{employee.name}</strong>
+                  <small>
+                    {employeeTypeLabels[employee.employee_type] ?? employee.employee_type}
+                    {employee.keyholder ? ' · Keyholder' : ''}
+                    {' · '}{employee.contract_hours} contract hrs
+                  </small>
+                </div>
+                <button
+                  className="constraints-delete"
+                  type="button"
+                  disabled={deletingId === employee.id}
+                  onClick={() => handleDelete(employee)}
+                >
+                  {deletingId === employee.id ? 'Deleting...' : 'Delete'}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
   )
 }

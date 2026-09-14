@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { apiFetch } from '../app/auth.js'
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const weekdayShifts = [
@@ -108,7 +109,7 @@ export default function EmployeeConstraints() {
     let cancelled = false
     async function loadEmployees() {
       try {
-        const response = await fetch('/api/employees')
+        const response = await apiFetch('/api/employees')
         if (!response.ok) throw new Error('Unable to load employees.')
         const data = await response.json()
         if (!cancelled) setEmployees(data.employees ?? [])
@@ -128,7 +129,7 @@ export default function EmployeeConstraints() {
     let cancelled = false
     async function loadEmployeeDetails() {
       try {
-        const response = await fetch(`/api/employeeDetail/${id}`)
+        const response = await apiFetch(`/api/employeeDetail/${id}`)
         if (!response.ok) throw new Error('Unable to load employee details.')
         const data = await response.json()
         if (!cancelled && data.employee) {
@@ -161,7 +162,7 @@ export default function EmployeeConstraints() {
       setMessage('')
       try {
         if (constraintMode === 'default') {
-          const response = await fetch(`/api/defaultEmployeeConstraints/${id}`)
+          const response = await apiFetch(`/api/defaultEmployeeConstraints/${id}`)
           if (!response.ok && response.status !== 404) throw new Error('Unable to load default constraints.')
           const data = response.ok ? await response.json() : {}
 
@@ -179,12 +180,12 @@ export default function EmployeeConstraints() {
           return
         }
 
-        const response = await fetch(`/api/specificEmployeeConstraints/${id}/${week}`)
+        const response = await apiFetch(`/api/specificEmployeeConstraints/${id}/${week}`)
         if (!response.ok) throw new Error('Unable to load specific constraints.')
         const data = await response.json()
         const specificRow = data.specificEmployeeConstraints?.[0]
 
-        const annualLeaveResponse = await fetch(`/api/annualLeaveHours/${id}/${week}`)
+        const annualLeaveResponse = await apiFetch(`/api/annualLeaveHours/${id}/${week}`)
         const annualLeaveRow = annualLeaveResponse.ok ? (await annualLeaveResponse.json()).annualLeaveHours : null
 
         if (!cancelled) {
@@ -248,7 +249,7 @@ export default function EmployeeConstraints() {
     try {
       const specificUrl = `/api/specificEmployeeConstraints/${id}/${week}`
       const shouldDeleteSpecificConstraints = isSpecific && hasSpecificConstraints && constraints.length === 0
-      const response = await fetch(isSpecific ? specificUrl : `/api/defaultEmployeeConstraints/${id}`, shouldDeleteSpecificConstraints ? {
+      const response = await apiFetch(isSpecific ? specificUrl : `/api/defaultEmployeeConstraints/${id}`, shouldDeleteSpecificConstraints ? {
         method: 'DELETE',
       } : {
         method: isSpecific ? (hasSpecificConstraints ? 'PUT' : 'POST') : 'PUT',
@@ -262,7 +263,7 @@ export default function EmployeeConstraints() {
       if (isSpecific) {
         const annualLeaveUrl = `/api/annualLeaveHours/${id}/${week}`
         if (isAnnualLeave) {
-          const annualLeaveResponse = await fetch(annualLeaveUrl, {
+          const annualLeaveResponse = await apiFetch(annualLeaveUrl, {
             method: hasAnnualLeaveHours ? 'PUT' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ hours: Number(annualLeaveHours) }),
@@ -271,7 +272,7 @@ export default function EmployeeConstraints() {
           if (!annualLeaveResponse.ok) throw new Error(annualLeaveData.message || 'Unable to save annual leave hours.')
           setHasAnnualLeaveHours(true)
         } else if (hasAnnualLeaveHours) {
-          const annualLeaveResponse = await fetch(annualLeaveUrl, { method: 'DELETE' })
+          const annualLeaveResponse = await apiFetch(annualLeaveUrl, { method: 'DELETE' })
           if (!annualLeaveResponse.ok && annualLeaveResponse.status !== 404) throw new Error('Unable to remove annual leave hours.')
           setHasAnnualLeaveHours(false)
         }
@@ -300,7 +301,7 @@ export default function EmployeeConstraints() {
     setMessage('')
     setSaveStatus('')
     try {
-      const response = await fetch(`/api/specificEmployeeConstraints/${id}/${week}`, { method: 'DELETE' })
+      const response = await apiFetch(`/api/specificEmployeeConstraints/${id}/${week}`, { method: 'DELETE' })
       if (!response.ok && response.status !== 404) {
         const data = await response.json().catch(() => ({}))
         throw new Error(data.message || 'Unable to delete constraints.')
@@ -328,7 +329,7 @@ export default function EmployeeConstraints() {
     setError('')
     setMessage('')
     try {
-      const response = await fetch('/api/updateEmployeeDetail', {
+      const response = await apiFetch('/api/updateEmployeeDetail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

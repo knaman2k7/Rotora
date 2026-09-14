@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { apiFetch } from '../app/auth.js'
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const weekdayShifts = [
@@ -93,7 +94,7 @@ export default function WeekConstraints() {
     let cancelled = false
     async function loadEmployees() {
       try {
-        const response = await fetch('/api/employees')
+        const response = await apiFetch('/api/employees')
         if (!response.ok) throw new Error('Unable to load employees.')
         const data = await response.json()
         if (!cancelled) setEmployees(data.employees ?? [])
@@ -115,7 +116,7 @@ export default function WeekConstraints() {
       setMessage('')
       const url = constraintMode === 'default' ? '/api/defaultWeekConstraints' : `/api/specificWeekConstraints/${week}`
       try {
-        const response = await fetch(url)
+        const response = await apiFetch(url)
         if (!response.ok && !(constraintMode === 'specific' && response.status === 404)) throw new Error('Unable to load week constraints.')
         if (response.status === 404) {
           if (!cancelled) {
@@ -241,7 +242,7 @@ export default function WeekConstraints() {
     setMessage('')
     setSaveStatus('')
     try {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: constraintMode === 'specific' && !hasSpecificConstraints ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -271,7 +272,7 @@ export default function WeekConstraints() {
     setMessage('')
     setSaveStatus('')
     try {
-      const response = await fetch(`/api/specificWeekConstraints/${week}`, { method: 'DELETE' })
+      const response = await apiFetch(`/api/specificWeekConstraints/${week}`, { method: 'DELETE' })
       if (!response.ok && response.status !== 404) {
         const data = await response.json().catch(() => ({}))
         throw new Error(data.message || 'Unable to delete week constraints.')

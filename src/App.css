@@ -49,6 +49,12 @@ button span { font-size: 1.3rem; }
 .add-employee-actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.5rem; }
 .primary-action { padding: 0.85rem 1.1rem; color: #f8f7f2; background: var(--ink); }
 .primary-action:hover:not(:disabled) { background: #1d504b; transform: translateY(-2px); }
+.employee-list-panel { margin-top: 2.5rem; }
+.employee-management-list { display: grid; gap: 0.65rem; margin: 0; padding: 0; list-style: none; }
+.employee-management-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1rem; border: 1px solid #cdd1ca; border-radius: 0.25rem; background: #fff; }
+.employee-management-info { display: grid; gap: 0.3rem; }
+.employee-management-info strong { color: var(--ink); font-size: 0.88rem; }
+.employee-management-info small { color: var(--muted); font-size: 0.72rem; }
 
 .scheduler-shell { display: grid; grid-template-columns: 14rem minmax(0, 1fr); min-height: 100vh; color: var(--ink); background: #f4f3ed; }
 .scheduler-sidebar { display: flex; flex-direction: column; min-height: 100vh; padding: 2.2rem 1.2rem 1.5rem; border-right: 1px solid #cdd1ca; background: #eeeee8; }
@@ -170,14 +176,23 @@ button span { font-size: 1.3rem; }
 .schedule-toolbar p { margin: 0; color: var(--muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 .copy-button { padding: 0.55rem 0.9rem; border: 1px solid #c3c8c0; color: var(--ink); background: transparent; font-size: 0.78rem; }
 .copy-button:hover { background: #e4e4dd; transform: none; }
-.empty-schedule-board { overflow: hidden; border: 1px solid #aeb5ad; background: #fafaf7; }
-.schedule-day-labels { display: grid; grid-template-columns: repeat(7, minmax(5rem, 1fr)); border-bottom: 1px solid #aeb5ad; }
-.schedule-day-labels span { padding: 0.7rem 0.45rem; border-right: 1px solid #cdd1ca; color: var(--muted); font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; }
-.schedule-day-labels span:last-child { border-right: 0; }
-.schedule-grid { display: grid; grid-template-columns: repeat(7, minmax(5rem, 1fr)); grid-template-rows: repeat(7, 3.2rem); }
-.schedule-grid span { border-right: 1px solid #d7dad4; border-bottom: 1px solid #d7dad4; }
-.schedule-grid span:nth-child(7n) { border-right: 0; }
-.schedule-grid span:nth-last-child(-n + 7) { border-bottom: 0; }
+.rota-table-wrapper { overflow-x: auto; border: 1px solid #aeb5ad; background: #fafaf7; }
+.rota-table { width: 100%; min-width: 62rem; border-collapse: collapse; }
+.rota-table th, .rota-table td { border-right: 1px solid #d7dad4; border-bottom: 1px solid #d7dad4; padding: 0.55rem 0.4rem; font-size: 0.78rem; text-align: center; white-space: nowrap; }
+.rota-table th:last-child, .rota-table td:last-child { border-right: 0; }
+.rota-table tbody tr:last-child th, .rota-table tbody tr:last-child td { border-bottom: 0; }
+.rota-table thead th { border-bottom: 1px solid #aeb5ad; background: #efe8c8; color: var(--ink); font-size: 0.68rem; font-weight: 700; }
+.rota-table-corner { background: #e8dfa6 !important; font-family: Georgia, 'Times New Roman', serif; font-size: 1rem; }
+.rota-table-day { display: table-cell; }
+.rota-table-date, .rota-table-dayname { display: block; }
+.rota-table-dayname { margin-top: 0.15rem; font-size: 0.62rem; letter-spacing: 0.06em; }
+.rota-table-employee { background: #e2e6f2; color: var(--ink); font-weight: 700; text-align: left; padding-left: 0.7rem; cursor: grab; }
+.rota-table-drag-handle { display: inline-block; margin-right: 0.4rem; color: var(--muted); }
+.rota-row-dragging { opacity: 0.5; }
+.rota-table-time { min-width: 6rem; }
+.rota-table-hours { min-width: 2.4rem; color: var(--muted); }
+.rota-table-worked { background: #dfeee0; font-weight: 700; }
+thead .rota-table-worked { background: #cfe6d1; }
 .regenerate-button { display: block; margin: 2rem auto 0; padding: 0.8rem 1.2rem; color: #f8f7f2; background: var(--ink); font-size: 0.8rem; }
 .regenerate-button:hover { background: #1d504b; transform: translateY(-2px); }
 
@@ -195,9 +210,6 @@ button span { font-size: 1.3rem; }
 	.constraints-controls { grid-template-columns: 1fr 1fr; }
 	.week-structure-grid { grid-template-columns: repeat(7, minmax(15rem, 1fr)); overflow-x: auto; }
 	.constraint-shifts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-	.schedule-day-labels,
-	.schedule-grid { min-width: 35rem; }
-	.empty-schedule-board { overflow-x: auto; }
 }
 
 @media (max-width: 430px) {

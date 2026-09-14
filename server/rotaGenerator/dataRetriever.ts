@@ -5,28 +5,44 @@ import db from "../database/db.ts";
 async function retrieveData(weekNo: number): Promise<Object>{
 
     // get week constraints
-    const workingRota: Object = await getWeekConstraints(weekNo);
+    const workingRota: Record<number, Array<number | null>> = await getWeekConstraints(weekNo);
 
     // get employee details
-    const { CDhours: CCDhours, fullTimeEmployees, keyholders } = await getEmployeeDetails(weekNo);
+    const { CDhours: CCDhours, fullTimeEmployees, keyholders, annualLeaveEmployees } = await getEmployeeDetails(weekNo);
+
+    // raise an error if there is an employee on 0 hour annual leave for the week and they are in the pre-allocated shifts
+    if (annualLeaveEmployees.length > 0) {
+
+        const preAllocatedEmployeeIds = new Set(
+            Object.values(workingRota)
+                .flat()
+                .filter((id): id is number => id !== null)
+        );
+
+        const conflictingEmployees = annualLeaveEmployees.filter(
+            id => preAllocatedEmployeeIds.has(id)
+        );
+
+        if (conflictingEmployees.length > 0) {
+            throw new Error(
+                `Employee(s) ${conflictingEmployees.join(', ')} are on 0 hour annual leave for week ${weekNo} but are pre-allocated in the shift rota.`
+            );
+        }
+
+    }
 
     // get employee constraints
     const availability: Record<string, { keyholder: number[][], all: number[][] }> = await getEmployeeConstraints(weekNo, keyholders, CCDhours);
 
-    
-    // delete any employees if they are on annual leave
 
-
-    console.log(util.inspect(
-        {workingRota, availability, CDhours: CCDhours, fullTimeEmployees}, 
-        { depth: null }));
+    //console.log(util.inspect({workingRota, availability, CDhours: CCDhours, fullTimeEmployees}, { depth: null }));
 
     return {workingRota, availability, CDhours: CCDhours, fullTimeEmployees};
 
 }
 
 
-async function getWeekConstraints(weekNo: number): Promise<Object> {
+async function getWeekConstraints(weekNo: number): Promise<Record<number, Array<number | null>>> {
 
     // retrieve week constraint
     const dbRes = await db.query(
@@ -73,7 +89,8 @@ async function getWeekConstraints(weekNo: number): Promise<Object> {
 async function getEmployeeDetails(weekNo:number): Promise<{
     CDhours: Object;
     fullTimeEmployees: Object;
-    keyholders: number[]
+    keyholders: number[];
+    annualLeaveEmployees: number[]
 }> {
     
     interface EmployeeDetails {
@@ -104,10 +121,12 @@ async function getEmployeeDetails(weekNo:number): Promise<{
     const annualLeaveDetails: AnnualLeaveDetails[] = dbRes2.rows;
 
     // corrected data against annual leave hours
+    const annualLeaveEmployees: number[] = [];
+
     annualLeaveDetails.forEach( (e) => {
         // remove any employees if they have 0 hours
         if (e.hours == 0){
-            employeeDetails.filter(employee => employee.id != e.id)
+            annualLeaveEmployees.push(e.id);
         }
         // else set their contract hours and desired hours to annual leave hours
         else if (e.hours > 0){
@@ -120,8 +139,12 @@ async function getEmployeeDetails(weekNo:number): Promise<{
         }
     })
 
+    const availableEmployeeDetails = employeeDetails.filter(
+        employee => !annualLeaveEmployees.includes(employee.id)
+    );
+
     const CDhours: Object = Object.fromEntries(
-        employeeDetails.map(employee => [
+        availableEmployeeDetails.map(employee => [
             employee.id,
             {
                 currentHours: 0,
@@ -131,16 +154,16 @@ async function getEmployeeDetails(weekNo:number): Promise<{
         ])
     );
 
-    const keyholders: number[] = employeeDetails
+    const keyholders: number[] = availableEmployeeDetails
         .filter(e => e.keyholder == true)
         .map(e => e.id);
 
-    const fullTimeEmployees: number[] = employeeDetails
+    const fullTimeEmployees: number[] = availableEmployeeDetails
         .filter(employee => employee.employee_type != 'sales-advisor')
         .map(employee => employee.id);
 
 
-    return {CDhours, fullTimeEmployees, keyholders};
+    return {CDhours, fullTimeEmployees, keyholders, annualLeaveEmployees};
 
 }
 
@@ -230,7 +253,5 @@ async function getEmployeeConstraints(weekNo: number, keyholders: number[], CDho
 
 }
 
-
-retrieveData(5);
 
 export default retrieveData;

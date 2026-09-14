@@ -37,8 +37,8 @@ export async function newEmployee(request: Request, response: Response) {
 
         const employeeResult = await client.query(
             `INSERT INTO employee_details
-             (name, keyholder, contract_hours, desired_hours, employee_type)
-             VALUES ($1, $2, $3, $4, $5)
+             (name, keyholder, contract_hours, desired_hours, employee_type, display_order)
+             VALUES ($1, $2, $3, $4, $5, COALESCE((SELECT MAX(display_order) + 1 FROM employee_details), 0))
              RETURNING *`,
             [name.trim(), keyholder, parsedContractHours, normalizedDesiredHours, employeeType],
         );

@@ -16,13 +16,20 @@ export default async function login(request: Request, response: Response) {
         
         const DBres = await db.query('SELECT password, roletype FROM users WHERE username = $1',[username]);
         const user = DBres.rows[0];
-        
-        if (!user) response.status(401).json({message: "Invalid Credintels"})
+
+        if (!user) {
+            response.status(401).json({message: "Invalid Credintels"});
+            return;
+        }
+
         const validPassword = await bcrypt.compare(password, user.password);
 
-        if (!validPassword) response.status(401).json({message: "Incorrect Password"});
+        if (!validPassword) {
+            response.status(401).json({message: "Incorrect Password"});
+            return;
+        }
 
-        const token = jsonwebstoken.sign(user, process.env.JWTsecret, {expiresIn: "1d"});
+        const token = jsonwebstoken.sign({ username, roletype: user.roletype }, process.env.JWTsecret as string, {expiresIn: "1d"});
 
         response.status(200).json({ token: token });
 

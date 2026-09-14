@@ -1,9 +1,10 @@
 import express from 'express';
 
 import login from './login/login.ts';
+import requireAuth from './login/authMiddleware.ts';
 
 import { readWeekRota, regenerateWeekRota } from './databaseSockets/weekRota.ts';
-import { readEmployeeDetails, readEmployeeNames, updateEmployeeDetails } from './databaseSockets/employeeDetails.ts';
+import { deleteEmployee, readEmployeeDetails, readEmployeeNames, reorderEmployees, updateEmployeeDetails } from './databaseSockets/employeeDetails.ts';
 import { newEmployee } from './databaseSockets/newEmployee.ts';
 import {
 	readDefaultEmployeeConstraints,
@@ -32,6 +33,13 @@ import {
 	updateAnnualLeaveHours,
 } from './databaseSockets/annualLeaveHours.ts';
 
+process.on('uncaughtException', (error) => {
+	console.error('uncaughtException:', error);
+});
+process.on('unhandledRejection', (reason) => {
+	console.error('unhandledRejection:', reason);
+});
+
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
@@ -54,6 +62,9 @@ app.use((request, response, next) => {
 // login functionality
 app.post("/api/login", login);
 
+// every route below requires a valid JWT
+app.use(requireAuth);
+
 
 // CRUD over data
 
@@ -63,9 +74,11 @@ app.post("/api/regenerateWeekRota/:weekNo", regenerateWeekRota);
 
 // employee's details
 app.get("/api/employees", readEmployeeNames);
+app.put("/api/employees/reorder", reorderEmployees);
 app.post("/api/newEmployee", newEmployee);
 app.get("/api/employeeDetail/:id", readEmployeeDetails);
 app.post("/api/updateEmployeeDetail", updateEmployeeDetails);
+app.delete("/api/employee/:id", deleteEmployee);
 
 // employee constraint defaults
 app.get('/api/defaultEmployeeConstraints/:id', readDefaultEmployeeConstraints);

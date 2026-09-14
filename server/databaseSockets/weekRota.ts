@@ -9,9 +9,19 @@ export async function readWeekRota(request: Request, response: Response){
     try {
 
         const dbRes = await db.query(`SELECT shifts FROM rotas WHERE week_no = $1`, [weekNo]);
-        const rota = dbRes.rows[0].week_rota;
 
-        response.status(200).json({weekRota: rota});
+        if (dbRes.rows.length === 0){
+            response.status(404).json({message: 'No rota has been generated for this week yet'});
+            return;
+        }
+
+        const rota = dbRes.rows[0].shifts;
+
+        const employeeRes = await db.query(`SELECT id, name FROM employee_details ORDER BY display_order`);
+        const idToName = Object.fromEntries( employeeRes.rows.map( r => [r.id, r.name] ) );
+        const employeeOrder = employeeRes.rows.map( r => r.id );
+
+        response.status(200).json({rota, idToName, employeeOrder});
 
     }
     catch (err){
@@ -26,11 +36,11 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
     try {
 
-        const rota = createRota(Number(weekNo));
+        const rota = await createRota(Number(weekNo));
 
         await db.query(
             `
-            INSERT INTO rotas (week_no, shifts))
+            INSERT INTO rotas (week_no, shifts)
             VALUES ($1, $2)
             ON CONFLICT (week_no)
             DO UPDATE SET
@@ -40,12 +50,20 @@ export async function regenerateWeekRota(request: Request, response: Response){
             [weekNo, rota]
         );
 
-        response.status(200).json({weekRota: rota});
+        const dbRes = await db.query(
+            `SELECT id, name FROM employee_details ORDER BY display_order`
+        )
+
+        const idToName = Object.fromEntries( dbRes.rows.map( r => [r.id, r.name] ) );
+        const employeeOrder = dbRes.rows.map( r => r.id );
+
+        response.status(200).json({rota, idToName, employeeOrder});
 
     }
     catch (err){
 
-        response.status(400).json({message: err});
+        const message = err instanceof Error ? err.message : 'Rota generation failed for an unknown reason.';
+        response.status(400).json({message});
     }
 
 }
