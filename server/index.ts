@@ -44,8 +44,8 @@ app.post("/api/login", login);
 // CRUD over data
 
 // A specific week's rota
-app.get("/api/weekRota", readWeekRota);
-app.post("/api/regenerateWeekRota", regenerateWeekRota);
+app.get("/api/weekRota/:weekNo", readWeekRota);
+app.post("/api/regenerateWeekRota/:weekNo", regenerateWeekRota);
 
 // employee's details
 app.get("/api/employees", readEmployeeNames);
@@ -77,6 +77,7 @@ app.get('/api/annualLeaveHours/:id/:weekNo', readAnnualLeaveHours);
 app.post('/api/annualLeaveHours/:id/:weekNo', createAnnualLeaveHours);
 app.put('/api/annualLeaveHours/:id/:weekNo', updateAnnualLeaveHours);
 app.delete('/api/annualLeaveHours/:id/:weekNo', deleteAnnualLeaveHours);
+
 
 
 app.listen(port, () => {

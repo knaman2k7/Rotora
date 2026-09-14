@@ -20,8 +20,7 @@ const sundayShifts = [
 const employeeTypes = [
   { value: 'manager', label: 'Manager' },
   { value: 'assistant-manager', label: 'Assistant-Manager' },
-  { value: 'supervisor', label: 'Supervisor' },
-  { value: 'keyholder', label: 'Keyholder' },
+  { value: 'supervisor', label: 'Supervisor' }, 
   { value: 'sales-advisor', label: 'Sales-Advisor' },
 ]
 const fullTimeEmployeeTypes = new Set(['manager', 'assistant-manager', 'supervisor'])

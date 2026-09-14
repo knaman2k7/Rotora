@@ -1,13 +1,14 @@
 import db from '../database/db.ts';
 import type { Request, Response } from 'express';
+import createRota from '../rotaGenerator/main.ts';
 
 export async function readWeekRota(request: Request, response: Response){
 
-    const { weekNo } = request.body;
+    const { weekNo } = request.params;
 
     try {
 
-        const dbRes = await db.query(`SELECT week_rota FROM week_rota WHERE week_no = $1`, [weekNo]);
+        const dbRes = await db.query(`SELECT shifts FROM rotas WHERE week_no = $1`, [weekNo]);
         const rota = dbRes.rows[0].week_rota;
 
         response.status(200).json({weekRota: rota});
@@ -21,13 +22,25 @@ export async function readWeekRota(request: Request, response: Response){
 
 export async function regenerateWeekRota(request: Request, response: Response){
 
-    const { weekNo } = request.body;
+    const { weekNo } = request.params;
 
     try {
 
-        // need to plug in algorithm here
+        const rota = createRota(Number(weekNo));
 
-        response.status(200).json({message: 'functionality needs to be built'});
+        await db.query(
+            `
+            INSERT INTO rotas (week_no, shifts))
+            VALUES ($1, $2)
+            ON CONFLICT (week_no)
+            DO UPDATE SET
+                shifts = EXCLUDED.shifts
+            RETURNING *;
+            `,
+            [weekNo, rota]
+        );
+
+        response.status(200).json({weekRota: rota});
 
     }
     catch (err){

@@ -1,3 +1,14 @@
+
+
+To Do's
+
+- remove desired_total_hours from week_constraints
+- remove 6 hour and 8 hour shift constraints in specific employee constraints and the ones in DB
+
+
+
+
+
 ## Important Meta-Information about system
 
 Store opening times:
