@@ -41,12 +41,20 @@ process.on('unhandledRejection', (reason) => {
 });
 
 const app = express();
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT || 3000);
+
+const allowedOrigins = [
+	process.env.FRONTEND_URL,
+	'http://localhost:5173',
+	'http://localhost:3000',
+].filter(Boolean);
 
 app.use(express.json());
 app.use((request, response, next) => {
-	const origin = request.headers.origin ?? '*';
-	response.setHeader('Access-Control-Allow-Origin', origin === '*' ? '*' : origin);
+	const origin = request.headers.origin;
+	if (origin && allowedOrigins.includes(origin)) {
+		response.setHeader('Access-Control-Allow-Origin', origin);
+	}
 	response.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
 	response.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
@@ -58,6 +66,10 @@ app.use((request, response, next) => {
 	next();
 });
 
+// health check for uptime monitors / Render
+app.get("/health", (_request, response) => {
+	response.sendStatus(200);
+});
 
 // login functionality
 app.post("/api/login", login);

@@ -155,33 +155,68 @@ export class RotaFramework{
     // -- people being available for those days(employee constraints)
     public valid(day: number): boolean{
 
-        const daysRemaining = 6 - day;
-
-        // full-time employees must reach their contract hours by the end of
-        // the week: a full-time employee can only work one 8-hour shift per
-        // day, so if the hours they still need exceed what the remaining
-        // days could possibly provide, this branch can never reach a valid
-        // rota - reject it now (backtrack) rather than discovering it later.
-        // this is a heuristic while days remain (it only proves the branch
-        // is impossible, not that it's on track), but it sharpens as
-        // daysRemaining shrinks: once day is Sunday (day === 6) there are no
-        // days left, so this becomes an exact check - contractHours must
-        // already be met, full stop.
-        for (const id of this.fullTimeEmployees){
-            const details = this.CCDhours[id];
-            if (!details) continue;
-
+        // every employee must reach their contract hours by the end of the
+        // week. If the hours still needed exceed what the remaining days
+        // could possibly provide, this branch can never reach a valid rota.
+        // This also becomes an exact check after Sunday (day === 6), when
+        // daysRemaining is zero.
+        for (const [idText, details] of Object.entries(this.CCDhours)){
+            const id = Number(idText);
             const hoursNeeded = details.contractHours - details.currentHours;
-
-            if (hoursNeeded > daysRemaining * 8){
-                return false;
-            }
 
             // full-time employees must not be scheduled beyond their
             // contract hours - reject as soon as currentHours exceeds it
             if (details.currentHours > details.contractHours){
                 return false;
             }
+
+            if (hoursNeeded <= 0) continue;
+
+            // Bound each employee by the shifts they can actually take on
+            // future days. The old daysRemaining * 8 bound allowed the
+            // search to explore many branches that could never meet a
+            // contract because of availability or 6-hour shift rules.
+            let maximumRemainingHours = 0;
+            for (let futureDay = day + 1; futureDay <= 6; futureDay++){
+                const futureEntries = this.rotaEntriesForDay(futureDay + 1);
+                const dayAvailability = this.availability[this.dayNames[futureDay]];
+                const canWorkMorning = dayAvailability.all[0].includes(id);
+                const canWorkEvening = dayAvailability.all[1].includes(id);
+
+                const possibleHours = futureEntries
+                    .filter(([code, slots]) => {
+                        if (!slots.some(slot => slot === null)) return false;
+                        const type = Number(code) % 10;
+                        const isMorning = type === 1 || type === 2;
+                        const isSixHour = type === 2 || type === 4;
+                        if (this.fullTimeSet.has(id) && isSixHour) return false;
+                        return isMorning ? canWorkMorning : canWorkEvening;
+                    })
+                    .map(([code]) => this.getShiftHours(code));
+
+                // An employee can work at most one shift per day.
+                maximumRemainingHours += Math.max(0, ...possibleHours);
+            }
+
+            if (hoursNeeded > maximumRemainingHours){
+                return false;
+            }
+        }
+
+        // The remaining shifts are a shared pool. Even when every employee
+        // looks feasible individually, the rota cannot succeed if the total
+        // hours still required exceed the hours in all remaining open slots.
+        const totalHoursNeeded = Object.values(this.CCDhours)
+            .reduce((total, details) => total + Math.max(0, details.contractHours - details.currentHours), 0);
+        const remainingShiftHours = Object.entries(this.workingRota as Record<string, Array<number | null>>)
+            .reduce((total, [code, slots]) => {
+                return total + (slots.some(slot => slot === null)
+                    ? slots.filter(slot => slot === null).length * this.getShiftHours(code)
+                    : 0);
+            }, 0);
+
+        if (totalHoursNeeded > remainingShiftHours){
+            return false;
         }
 
         // people being available for those days (employee constraints):
@@ -275,6 +310,11 @@ export class RotaFramework{
 
         return true;
 
+    }
+
+    private rotaEntriesForDay(day: number): [string, Array<number | null>][] {
+        return Object.entries(this.workingRota as Record<string, Array<number | null>>)
+            .filter(([code]) => Math.floor(Number(code) / 10) === day);
     }
 
     public getDayShift(day: number): Object{

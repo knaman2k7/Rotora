@@ -65,7 +65,7 @@ export default class DayCombinator{
             this.weekCombinations[this.mapDay[day]] = rankedCombinations;
 
             // 0 could be replaced for day here
-            return this.weekCombinations[this.mapDay[day]][0]
+            return this.weekCombinations[this.mapDay[day]][0] ?? null
 
         }
 
@@ -166,14 +166,20 @@ export default class DayCombinator{
                     .flatMap((s) => [...s.fixed, ...(chosen[s.code] ?? [])]);
 
             if (hasMorningShift) {
+                const morningHasOpenSlot = shifts
+                    .some((shift) => shift.isMorning && shift.openCount > 0);
                 const morningAssigned = collect((s) => s.isMorning);
-                if (!keyholderAvailability[0].some((id) => morningAssigned.includes(id))) {
+                if (morningHasOpenSlot
+                    && !keyholderAvailability[0].some((id) => morningAssigned.includes(id))) {
                     return false;
                 }
             }
             if (hasEveningShift) {
+                const eveningHasOpenSlot = shifts
+                    .some((shift) => !shift.isMorning && shift.openCount > 0);
                 const eveningAssigned = collect((s) => !s.isMorning);
-                if (!keyholderAvailability[1].some((id) => eveningAssigned.includes(id))) {
+                if (eveningHasOpenSlot
+                    && !keyholderAvailability[1].some((id) => eveningAssigned.includes(id))) {
                     return false;
                 }
             }
@@ -225,10 +231,9 @@ export default class DayCombinator{
         return results;
     }
 
-    // filters combination if there exisit a full-time employee in the combination who will exceed their contract hours
+    // filters combinations that would make any employee exceed their contract hours
     private shredCombinations(combinations: Object[], rota: RotaFramework, originalDayShift: Object): Object[]{
 
-        const fullTimeSet = new Set(rota.getFullTimeEmployees());
         const employeeHours = rota.getEmployeeHours();
         const originalSlots = originalDayShift as Record<string, Array<number | null>>;
 
@@ -258,11 +263,9 @@ export default class DayCombinator{
                 });
             }
 
-            // a full-time employee must work exactly their contract hours across
-            // the week, so a combination that pushes them past it is invalid
+            // A combination that pushes any employee past their contract is
+            // invalid. The final-week lower-bound check lives in valid().
             for (const [id, hours] of hoursToday) {
-                if (!fullTimeSet.has(id)) continue;
-
                 const details = employeeHours[id];
                 if (details && details.currentHours + hours > details.contractHours) {
                     return false;

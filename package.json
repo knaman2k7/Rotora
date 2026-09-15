@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "server": "node --experimental-strip-types server/index.ts",
+    "start": "node --experimental-strip-types server/index.ts",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"
