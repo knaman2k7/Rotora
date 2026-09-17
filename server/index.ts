@@ -1,4 +1,6 @@
 import express from 'express';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import login from './login/login.ts';
 import requireAuth from './login/authMiddleware.ts';
@@ -40,6 +42,10 @@ process.on('unhandledRejection', (reason) => {
 	console.error('unhandledRejection:', reason);
 });
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.join(__dirname, '../dist');
+
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
@@ -71,11 +77,14 @@ app.get("/health", (_request, response) => {
 	response.sendStatus(200);
 });
 
+// serve the built frontend (dist/) as static assets
+app.use(express.static(distPath));
+
 // login functionality
 app.post("/api/login", login);
 
-// every route below requires a valid JWT
-app.use(requireAuth);
+// every /api route below requires a valid JWT
+app.use('/api', requireAuth);
 
 
 // CRUD over data
@@ -119,6 +128,10 @@ app.put('/api/annualLeaveHours/:id/:weekNo', updateAnnualLeaveHours);
 app.delete('/api/annualLeaveHours/:id/:weekNo', deleteAnnualLeaveHours);
 
 
+// client-side routing fallback - must be registered after every API route above
+app.get("/{*splat}", (_request, response) => {
+	response.sendFile(path.join(distPath, "index.html"));
+});
 
 app.listen(port, () => {
 	console.log(`Auth server listening on http://localhost:${port}`);

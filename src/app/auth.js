@@ -1,6 +1,10 @@
 const TOKEN_KEY = 'rotora.auth.token'
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// Empty string resolves to a relative URL, which is correct whenever the
+// frontend is served by the same origin as the API (production, and local
+// dev via the vite proxy in vite.config.js). Set VITE_API_URL only if the
+// API lives on a different origin.
+export const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
 const SLOW_REQUEST_MS = 3000
 const slowRequestListeners = new Set()
