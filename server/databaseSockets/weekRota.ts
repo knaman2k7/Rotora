@@ -36,9 +36,9 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
     try {
 
-        const rota = await createRota(Number(weekNo));
+        //const rota = await createRota(Number(weekNo));
 
-        await db.query(
+        /*await db.query(
             `
             INSERT INTO rotas (week_no, shifts)
             VALUES ($1, $2)
@@ -49,10 +49,67 @@ export async function regenerateWeekRota(request: Request, response: Response){
             `,
             [weekNo, rota]
         );
+        */
 
-        const dbRes = await db.query(
-            `SELECT id, name FROM employee_details ORDER BY display_order`
-        )
+        const rota = 
+            {
+                "11": [
+                    2,
+                    10
+                ],
+                "13": [
+                    7
+                ],
+                "21": [
+                    1,
+                    2
+                ],
+                "23": [
+                    6
+                ],
+                "31": [
+                    1
+                ],
+                "32": [
+                    8
+                ],
+                "33": [
+                    2
+                ],
+                "34": [
+                    7
+                ],
+                "41": [
+                    1,
+                    2
+                ],
+                "43": [
+                    9
+                ],
+                "51": [
+                    1,
+                    2
+                ],
+                "53": [
+                    9
+                ],
+                "61": [
+                    1,
+                    6
+                ],
+                "63": [
+                    9
+                ],
+                "71": [
+                    9
+                ],
+                "72": [
+                    6,
+                    7
+                ]
+            }
+
+        const dbRes = await db.query(`SELECT id, name FROM employee_details ORDER BY display_order`);
 
         const idToName = Object.fromEntries( dbRes.rows.map( r => [r.id, r.name] ) );
         const employeeOrder = dbRes.rows.map( r => r.id );

@@ -6,28 +6,6 @@ const TOKEN_KEY = 'rotora.auth.token'
 // API lives on a different origin.
 export const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
-const SLOW_REQUEST_MS = 3000
-const slowRequestListeners = new Set()
-
-function notifySlowRequestListeners(isSlow) {
-  for (const listener of slowRequestListeners) listener(isSlow)
-}
-
-export function onSlowRequestChange(listener) {
-  slowRequestListeners.add(listener)
-  return () => slowRequestListeners.delete(listener)
-}
-
-async function fetchWithSlowNotice(input, init) {
-  const timeoutId = setTimeout(() => notifySlowRequestListeners(true), SLOW_REQUEST_MS)
-  try {
-    return await fetch(input, init)
-  } finally {
-    clearTimeout(timeoutId)
-    notifySlowRequestListeners(false)
-  }
-}
-
 function resolveUrl(path) {
   return typeof path === 'string' && path.startsWith('/') ? `${API_BASE_URL}${path}` : path
 }
@@ -45,7 +23,7 @@ export function clearToken() {
 }
 
 export async function signIn(credentials) {
-  const response = await fetchWithSlowNotice(resolveUrl('/api/login'), {
+  const response = await fetch(resolveUrl('/api/login'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
@@ -69,7 +47,7 @@ export async function apiFetch(input, init = {}) {
   const headers = new Headers(init.headers)
   if (token) headers.set('Authorization', `Bearer ${token}`)
 
-  const response = await fetchWithSlowNotice(resolveUrl(input), { ...init, headers })
+  const response = await fetch(resolveUrl(input), { ...init, headers })
 
   if (response.status === 401) {
     clearToken()
