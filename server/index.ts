@@ -56,22 +56,6 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(express.json());
-app.use((request, response, next) => {
-	const origin = request.headers.origin;
-	if (origin && allowedOrigins.includes(origin)) {
-		response.setHeader('Access-Control-Allow-Origin', origin);
-	}
-	response.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-	response.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-
-	if (request.method === 'OPTIONS') {
-		response.sendStatus(204);
-		return;
-	}
-
-	next();
-});
-
 // health check for uptime monitors / Render
 app.get("/health", (_request, response) => {
 	response.sendStatus(200);
