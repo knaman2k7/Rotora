@@ -38,19 +38,6 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
         //const rota = await createRota(Number(weekNo));
 
-        /*await db.query(
-            `
-            INSERT INTO rotas (week_no, shifts)
-            VALUES ($1, $2)
-            ON CONFLICT (week_no)
-            DO UPDATE SET
-                shifts = EXCLUDED.shifts
-            RETURNING *;
-            `,
-            [weekNo, rota]
-        );
-        */
-
         const rota = 
             {
                 "11": [
@@ -108,6 +95,19 @@ export async function regenerateWeekRota(request: Request, response: Response){
                     7
                 ]
             }
+
+        await db.query(
+            `
+            INSERT INTO rotas (week_no, shifts)
+            VALUES ($1, $2)
+            ON CONFLICT (week_no)
+            DO UPDATE SET
+                shifts = EXCLUDED.shifts
+            RETURNING *;
+            `,
+            [weekNo, rota]
+        );
+
 
         const dbRes = await db.query(`SELECT id, name FROM employee_details ORDER BY display_order`);
 
