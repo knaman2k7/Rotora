@@ -36,8 +36,9 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
     try {
 
-        //const rota = await createRota(Number(weekNo));
+        const rota = await createRota(Number(weekNo));
 
+        /*
         const rota = 
             {
                 "11": [
@@ -95,6 +96,8 @@ export async function regenerateWeekRota(request: Request, response: Response){
                     7
                 ]
             }
+
+        */
 
         await db.query(
             `

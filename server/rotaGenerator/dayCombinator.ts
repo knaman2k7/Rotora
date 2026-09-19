@@ -28,46 +28,7 @@ export default class DayCombinator{
     public findDayCombination(rota: RotaFramework, day: number, i: number): Object | null
     {
 
-        const dayCombinations = this.weekCombinations[ this.mapDay[day] ];
-
-        if ( dayCombinations.length > 0 ){
-            if (dayCombinations.length == i){
-                return null;
-            }
-            else{
-                return dayCombinations[i];
-            }
-        }
-        // potential for error check here
-        else{
-
-            // generate the combination list
-            var newDayCombinations: Object[] = this.generateCombinations(
-                // main is 0 based - db is 1 based
-                rota.getDayShift(day+1),
-                rota.getKeyholderAvailability(this.mapDay[day]),
-                rota.getAllAvailability(this.mapDay[day]),
-                rota.getFullTimeEmployees()
-            )
-
-            // remove any full time exceeded contract hour combinations
-            var shreddedNewDayCombinations: Object[] = this.shredCombinations(
-                newDayCombinations,
-                rota,
-                rota.getDayShift(day+1)
-            );
-
-
-            // create the ranked list on combinations
-            var rankedCombinations: Object[] = this.rankMetric(shreddedNewDayCombinations, rota);
-
-            // insert these combinations
-            this.weekCombinations[this.mapDay[day]] = rankedCombinations;
-
-            // 0 could be replaced for day here
-            return this.weekCombinations[this.mapDay[day]][0] ?? null
-
-        }
+        
 
     }
 
@@ -78,7 +39,6 @@ export default class DayCombinator{
 
 
     // generates all the possible combinations given the current state of the day
-    // uses keyholder status as hard constraints
     private generateCombinations(
         shiftsAvailable: Object,
         keyholderAvailability: number[][],
@@ -234,88 +194,14 @@ export default class DayCombinator{
     // filters combinations that would make any employee exceed their contract hours
     private shredCombinations(combinations: Object[], rota: RotaFramework, originalDayShift: Object): Object[]{
 
-        const employeeHours = rota.getEmployeeHours();
-        const originalSlots = originalDayShift as Record<string, Array<number | null>>;
-
-        // y (shift type) is the last digit of the code: 1 = morning-8,
-        // 2 = morning-6, 3 = evening-8, 4 = evening-6.
-        const getShiftHours = (code: string): number => {
-            const type = Number(code) % 10;
-            return (type === 2 || type === 4) ? 6 : 8;
-        };
-
-        return combinations.filter((combination) => {
-
-            const shifts = combination as Record<string, number[]>;
-
-            // total hours this combination would add today, per employee -
-            // slots that were already pre-allocated are excluded since their
-            // hours are already baked into currentHours permanently, and
-            // counting them again here would double-count and wrongly reject
-            // the only combination that includes them
-            const hoursToday = new Map<number, number>();
-            for (const [code, employees] of Object.entries(shifts)) {
-                const hours = getShiftHours(code);
-                const original = originalSlots[code] ?? [];
-                employees.forEach((id, index) => {
-                    if (original[index] !== null && original[index] !== undefined) return;
-                    hoursToday.set(id, (hoursToday.get(id) ?? 0) + hours);
-                });
-            }
-
-            // A combination that pushes any employee past their contract is
-            // invalid. The final-week lower-bound check lives in valid().
-            for (const [id, hours] of hoursToday) {
-                const details = employeeHours[id];
-                if (details && details.currentHours + hours > details.contractHours) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
+        
 
     }
 
     // method which adds the rank metric
-    // rankMetric = Sum[for each employee in combination]( currentHours * ( 1/contractHours + k/desiredHours ) )
-    // lower rankMetric is better, so combinations are sorted ascending by it
-    //
-    // K is weighted at parity with the contract term (not a small nudge) so
-    // that employees with equal contractHours but very different
-    // desiredHours are still clearly differentiated - previously K=0.15 made
-    // this term small enough to be swamped by the tie-break noise below,
-    // which let low-desired-hours employees (e.g. desiredHours == contractHours)
-    // keep pace with high-desired-hours employees instead of yielding hours
-    // to them once both had comparable currentHours
     private rankMetric(combinations: Object[], rota: RotaFramework): Object[] {
 
-        const K = 1;
-        const employeeHours = rota.getEmployeeHours();
-
-        const metricFor = (combination: Object): number => {
-            const shifts = combination as Record<string, number[]>;
-
-            const employeeIds = new Set<number>();
-            Object.values(shifts).forEach((ids) => ids.forEach((id) => employeeIds.add(id)));
-
-            let total = 0;
-            for (const id of employeeIds) {
-                const details = employeeHours[id];
-                if (!details) continue;
-                total += details.currentHours * (1 / details.contractHours + K / details.desiredHours);
-            }
-            // tiny epsilon, not a meaningful ranking factor - only breaks
-            // exact ties (e.g. two combinations of all-zero-hours employees)
-            // so it can't override the real signal above like the old
-            // Math.random()/10 did
-            return total + (Math.random() * 1e-6);
-        };
-
-        return combinations
-            .map((combination) => ({ combination, metric: metricFor(combination) }))
-            .sort((a, b) => a.metric - b.metric)
-            .map((entry) => entry.combination);
+        
 
     }
 

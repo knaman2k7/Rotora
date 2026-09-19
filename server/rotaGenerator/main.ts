@@ -21,31 +21,15 @@ export default async function createRota(weekNo: number): Promise<Object>{
         fullTimeEmployees: number[];
     };
 
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++){
+    
+    const Rota: RotaFramework = new RotaFramework(workingRota, availability, CCDhours, fullTimeEmployees);
 
-        // fresh framework each attempt - CCDhours is mutated in place during
-        // the search, so it must be deep-copied rather than reused
-        const attemptCDhours: Record<number, EmployeeHours> = Object.fromEntries(
-            Object.entries(CCDhours).map(([id, details]) => [id, { ...details }])
-        );
-
-        const Rota: RotaFramework = new RotaFramework(workingRota, availability, attemptCDhours, fullTimeEmployees);
-
-        try {
-            return runAlgorithm(Rota);
-        } catch (error) {
-            const isSearchStepLimit = error instanceof Error
-                && error.message === "Rota generation exceeded the maximum number of search steps";
-
-            if (!isSearchStepLimit || attempt === MAX_ATTEMPTS){
-                throw error;
-            }
-        }
-
+    try {
+        return runAlgorithm(Rota);
+    } catch (error) {
+        // too many solutions tried - safety net for indefinite compute
+        throw new Error("Rota generation exceeded the maximum number of search steps");
     }
-
-    // unreachable - the loop always either returns or throws
-    throw new Error("Rota generation exceeded the maximum number of search steps");
 
 }
 
