@@ -8,7 +8,6 @@ function runAlgorithm(rota: Rota): Object{
     var day: number = 0;
     var lastComboForDay: number[] = [0,0,0,0,0,0,0];
     const dayCombinator = new DayCombinator(rota);
-    var counter = 0;
 
     while (rota.notComplete()){
 
@@ -44,7 +43,6 @@ function runAlgorithm(rota: Rota): Object{
             }
 
             i++
-            console.log(counter++);
 
         }
         while( ! (backtrackFlag || rota.valid() )  )

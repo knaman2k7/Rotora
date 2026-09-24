@@ -51,53 +51,79 @@ export class Rota{
         this.workingRota = {...this.workingRota, ...shifts};
     }
 
+    // restores the given day AND every later day to their base state, so
+    // stale combinations left on later days by a previous attempt can't make
+    // the rota look complete
     public backtrackShift(day: number){
-        this.workingRota = {...this.workingRota, 
+        this.workingRota = {...this.workingRota,
             ...Object.fromEntries(
                 Object.entries(this.baseRota).filter(
-                    ([key]) => key[0] == day.toString()
+                    ([key]) => Math.floor(Number(key) / 10) >= day
                 )
             )
         }
     }
 
 
-    // simple day 7 check so far -- really expensive
+    // checked after every day is applied. prunes partial rotas that can no
+    // longer meet contracts, and does the exact check once the rota is full
     public valid(): boolean{
 
-        
-        // simple implemetation so far
-        if (this.notComplete()){
-            return true;
-        }
-        else{
+        // CCDhours.currentHours only holds the pre-allocated (fixed) shifts,
+        // so total each employee's hours from the working rota
+        const rota = this.workingRota as Record<string, Array<number | null>>;
+        const totals: Record<number, number> = {};
+        // days that still have an undecided slot
+        const openDays = new Set<number>();
+        // employees already placed on each day (fixed or applied)
+        const placedOnDay: Record<number, Set<number>> = {};
 
-            // CCDhours.currentHours only holds the pre-allocated (fixed) shifts,
-            // so total each employee's hours from the completed working rota
-            const totals: Record<number, number> = {};
-            Object.entries(this.workingRota as Record<string, Array<number | null>>).forEach(([code, employees]) => {
-                const hours = this.getShiftHours(code);
-                employees.forEach(id => {
-                    if (id === null) return;
-                    totals[id] = (totals[id] ?? 0) + hours;
-                });
-            });
-
-            // make sure every minimum contract hour has been hit
-            return Object.entries(this.CCDhours).every(
-                ([key,value]) => {
-                    const worked = totals[Number(key)] ?? 0;
-                    // `in` tests array indices, not values - use includes
-                    if (this.fullTimeEmployees.includes(Number(key))){
-                        return worked == value.contractHours
-                    }
-                    else{
-                        return worked >= value.contractHours
-                    }
+        Object.entries(rota).forEach(([code, employees]) => {
+            const hours = this.getShiftHours(code);
+            const day = Math.floor(Number(code) / 10);
+            placedOnDay[day] ??= new Set<number>();
+            employees.forEach(id => {
+                if (id === null){
+                    openDays.add(day);
+                    return;
                 }
-            )
+                totals[id] = (totals[id] ?? 0) + hours;
+                placedOnDay[day].add(id);
+            });
+        });
 
-        }
+        const complete = openDays.size === 0;
+
+        return Object.entries(this.CCDhours).every(
+            ([key,value]) => {
+                const id = Number(key);
+                const worked = totals[id] ?? 0;
+                // `in` tests array indices, not values - use includes
+                const fullTime = this.fullTimeEmployees.includes(id);
+
+                // full-timers must land exactly on contract, so going over is fatal
+                if (fullTime && worked > value.contractHours) return false;
+
+                if (complete){
+                    return fullTime
+                        ? worked == value.contractHours
+                        : worked >= value.contractHours;
+                }
+
+                // partial rota: even working every remaining day they're
+                // available (max 8h a day, one shift a day) they must still be
+                // able to reach contract
+                let potential = 0;
+                openDays.forEach(day => {
+                    if (placedOnDay[day]?.has(id)) return;
+                    const avail = this.availability[day.toString()]?.all;
+                    if (avail && (avail[0]?.includes(id) || avail[1]?.includes(id))){
+                        potential += 8;
+                    }
+                });
+                return worked + potential >= value.contractHours;
+            }
+        );
 
     }
 
