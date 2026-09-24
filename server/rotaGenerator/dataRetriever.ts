@@ -175,16 +175,8 @@ interface DayAvailability {
 async function getEmployeeConstraints(weekNo: number, keyholders: number[], CDhours: Object): 
     Promise<Record<string, { keyholder: number[][], all: number[][] }>>{
 
-    const days: String[] = ['Mon', 'Tue','Wed','Thu','Fri','Sat','Sun'];
-    const day: Record<number, string> = {
-        1: 'Mon',
-        2: 'Tue',
-        3: 'Wed',
-        4:'Thu',
-        5:'Fri',
-        6:'Sat',
-        7:'Sun'
-    }
+    // availability is keyed by day number as a string ('1' = Mon ... '7' = Sun)
+    const days: string[] = ['1', '2', '3', '4', '5', '6', '7'];
 
     const keyholderArr: number[] = keyholders;
     const allArr: number[] = Object.keys(CDhours).map(x => Number(x));
@@ -234,7 +226,7 @@ async function getEmployeeConstraints(weekNo: number, keyholders: number[], CDho
 
         employeeConstraints.constraints.forEach( (constraint: number) => {
 
-            const dayAvailability = availability[ day[ Math.floor(constraint/10) ] ];
+            const dayAvailability = availability[ String(Math.floor(constraint/10)) ];
 
             if (constraint%10 == 1 || constraint%10 == 2){
                 dayAvailability.all[0] = dayAvailability.all[0].filter(id => id !== employeeConstraints.id);

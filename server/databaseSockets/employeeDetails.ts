@@ -14,7 +14,8 @@ export async function readEmployeeNames(_request: Request, response: Response){
         response.status(200).json({ employees: result.rows });
 
     }
-    catch{
+    catch (err){
+        console.error('Failed to read employee details:', err);
         response.sendStatus(500);
     }
 
@@ -66,6 +67,7 @@ export async function readEmployeeDetails(request: Request, response: Response){
 
     }
     catch(err){
+        console.error('Failed to read employee:', err);
         response.sendStatus(500);
     }
 
@@ -93,6 +95,7 @@ export async function updateEmployeeDetails(request: Request, response: Response
 
     }
     catch (err){
+        console.error('Failed to update employee details:', err);
         response.sendStatus(500);
     }
 

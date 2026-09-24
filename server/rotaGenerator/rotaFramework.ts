@@ -4,15 +4,15 @@ export interface EmployeeHours {
     desiredHours: number;
 }
 
-export class RotaFramework{
+export class Rota{
 
     //copy of the original rota for backtracking
-    private baseRota: Object;
+    public baseRota: Object;
 
-    private workingRota: Object;
-    private availability: Record<string, { keyholder: number[][], all: number[][] }>;
-    private CCDhours: Record<number, EmployeeHours>;
-    private fullTimeEmployees: number[];
+    public workingRota: Object;
+    public availability: Record<string, { keyholder: number[][], all: number[][] }>;
+    public CCDhours: Record<number, EmployeeHours>;
+    public fullTimeEmployees: number[];
 
     constructor(workingRota: Object,
         availability: Record<string, { keyholder: number[][], all: number[][] }>,
@@ -42,31 +42,54 @@ export class RotaFramework{
 
     // returns true if the rota is now filled/ready
     public notComplete(): boolean{
-
-        console.log(this.workingRota);
-
         return Object.values(this.workingRota as Record<string, Array<number | null>>)
             .some(slots => slots.some(slot => slot === null));
     }
 
-
     // applies shift against employee combination to the current rota
     public applyShifts(shifts: Object){
-
-        
+        this.workingRota = {...this.workingRota, ...shifts};
     }
 
     public backtrackShift(day: number){
-
-        
-
+        this.workingRota = {...this.workingRota, 
+            ...Object.fromEntries(
+                Object.entries(this.baseRota).filter(
+                    ([key]) => key[0] == day.toString()
+                )
+            )
+        }
     }
 
-    public valid(day: number): boolean{
+
+    // simple day 7 check so far -- really expensive
+    public valid(): boolean{
+
+        // simple implemetation so far
 
         return true;
 
+        if (this.notComplete()){
+            return true;
+        }
+        else{
+
+            // make sure every minimum contract hour has been hit
+            return Object.entries(this.CCDhours).every(
+                ([key,value]) => {
+                    if (Number(key) in this.fullTimeEmployees){
+                        return value.currentHours == value.contractHours
+                    }
+                    else{
+                        return value.currentHours >= value.contractHours
+                    }
+                }
+            )
+
+        }
+
     }
+
 
 
 

@@ -25,6 +25,7 @@ export async function readWeekRota(request: Request, response: Response){
 
     }
     catch (err){
+        console.error('Failed to read week rota:', err);
         response.status(500).json({message: 'Invalid Week Number'});
     }
 
@@ -34,10 +35,13 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
     const { weekNo } = request.params;
 
+    console.log("reaced");
+
     try {
 
         const rota = await createRota(Number(weekNo));
 
+        
         /*
         const rota = 
             {
@@ -96,9 +100,10 @@ export async function regenerateWeekRota(request: Request, response: Response){
                     7
                 ]
             }
-
         */
 
+        
+        /*
         await db.query(
             `
             INSERT INTO rotas (week_no, shifts)
@@ -110,6 +115,7 @@ export async function regenerateWeekRota(request: Request, response: Response){
             `,
             [weekNo, rota]
         );
+        */
 
 
         const dbRes = await db.query(`SELECT id, name FROM employee_details ORDER BY display_order`);
@@ -122,6 +128,7 @@ export async function regenerateWeekRota(request: Request, response: Response){
     }
     catch (err){
 
+        console.error('Failed to generate rota:', err);
         const message = err instanceof Error ? err.message : 'Rota generation failed for an unknown reason.';
         response.status(400).json({message});
     }

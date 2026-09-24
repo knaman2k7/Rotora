@@ -1,5 +1,5 @@
 import retrieveData from "./dataRetriever.ts";
-import { type EmployeeHours, RotaFramework } from "./rotaFramework.ts";
+import { type EmployeeHours, Rota } from "./rotaFramework.ts";
 import runAlgorithm from "./algorithmFrame.ts";
 
 // the search uses random tie-breaking between equally-good shift
@@ -21,14 +21,16 @@ export default async function createRota(weekNo: number): Promise<Object>{
         fullTimeEmployees: number[];
     };
 
-    
-    const Rota: RotaFramework = new RotaFramework(workingRota, availability, CCDhours, fullTimeEmployees);
-
     try {
-        return runAlgorithm(Rota);
+
+        // run the algorithm and return
+        const rota: Rota = new Rota(workingRota, availability, CCDhours, fullTimeEmployees);
+
+        return runAlgorithm(rota);
+
     } catch (error) {
         // too many solutions tried - safety net for indefinite compute
-        throw new Error("Rota generation exceeded the maximum number of search steps");
+        throw error;
     }
 
 }

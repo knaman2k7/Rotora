@@ -1,4 +1,4 @@
-import {RotaFramework} from "./rotaFramework.ts"
+import {Rota} from "./rotaFramework.ts"
 
 export default class DayCombinator{
 
@@ -16,19 +16,47 @@ export default class DayCombinator{
         0: 'Mon',
         1: 'Tue',
         2: 'Wed',
-        3:'Thu',
-        4:'Fri',
-        5:'Sat',
-        6:'Sun'
+        3: 'Thu',
+        4: 'Fri',
+        5: 'Sat',
+        6: 'Sun'
     }
 
-    constructor(){}
+    private rota: Rota;
+
+    constructor(rota:Rota){
+        this.rota = rota;
+    }
 
     // provides the ith best combination
-    public findDayCombination(rota: RotaFramework, day: number, i: number): Object | null
+    public findDayCombination(day: number, i: number): Object | null
     {
 
-        
+        const currentDayCombos = this.weekCombinations[this.mapDay[day]];
+
+        if ( currentDayCombos.length != 0 ){
+            return i >= currentDayCombos.length ? null : currentDayCombos[i]
+        }
+        else{
+
+
+            // generate the combinations
+            var combos = this.generateCombinations(day);
+
+
+            // shred the invalid combinations - leave for now 
+            // if after shredding none are left - return null -> backtrack
+
+            // rank them
+            combos = this.rankMetric(combos);
+
+            // put them into the weekCombinations
+            this.weekCombinations[this.mapDay[day]] = combos;
+
+            
+            return combos[0];
+
+        }
 
     }
 
@@ -40,11 +68,14 @@ export default class DayCombinator{
 
     // generates all the possible combinations given the current state of the day
     private generateCombinations(
-        shiftsAvailable: Object,
-        keyholderAvailability: number[][],
-        allAvailability: number[][],
-        fullTimeEmployees: number[]
+        day: number
     ): Object[] {
+
+        var shiftsAvailable: Object = this.rota.getDayShift(day+1)
+        var keyholderAvailability: number[][] = this.rota.getKeyholderAvailability( (day+1).toString() );
+        var allAvailability: number[][] = this.rota.getAllAvailability( (day+1).toString() );
+        const fullTimeEmployees: number[] = this.rota.getFullTimeEmployees();
+
 
         type Slot = number | null;
 
@@ -191,17 +222,45 @@ export default class DayCombinator{
         return results;
     }
 
+    // leave for now
     // filters combinations that would make any employee exceed their contract hours
-    private shredCombinations(combinations: Object[], rota: RotaFramework, originalDayShift: Object): Object[]{
+    private shredCombinations(combinations: Object[], originalDayShift: Object){
 
         
 
     }
 
     // method which adds the rank metric
-    private rankMetric(combinations: Object[], rota: RotaFramework): Object[] {
+    // each combination is { "<shiftCode>": number[] } (fully filled slot arrays)
+    // returns the combinations sorted best-first (lowest score first), so
+    // employees who are furthest behind on their hours are favoured
+    private rankMetric(combinations: Object[]): Object[]{
 
-        
+        // score = sum[for each employee in the day combination]( currentHours( 1/contractHours + k/desiredHours ) )
+        const k = 0.15;
+        const hours = this.rota.getEmployeeHours();
+
+        const scoreOf = (combo: Object): number => {
+            let score = 0;
+            for (const slots of Object.values(combo as Record<string, number[]>)) {
+                for (const id of slots) {
+                    const h = hours[id];
+                    if (!h) continue;
+                    // a zero contract/desired value contributes nothing rather than Infinity
+                    const contractTerm = h.contractHours > 0 ? 1 / h.contractHours : 0;
+                    const desiredTerm = h.desiredHours > 0 ? k / h.desiredHours : 0;
+                    score += h.currentHours * (contractTerm + desiredTerm);
+                }
+            }
+            return score;
+        };
+
+        return combinations
+            .map((combo) => ({ combo, score: 
+                scoreOf(combo) + (0 * Math.random())
+            }))
+            .sort((a, b) => a.score - b.score)
+            .map((entry) => entry.combo);
 
     }
 
