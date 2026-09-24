@@ -35,8 +35,6 @@ export async function regenerateWeekRota(request: Request, response: Response){
 
     const { weekNo } = request.params;
 
-    console.log("reaced");
-
     try {
 
         const rota = await createRota(Number(weekNo));

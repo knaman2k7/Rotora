@@ -19,15 +19,15 @@ function getInitialWeek() {
 
 // day 3 = Wednesday (shorter morning shift), day 7 = Sunday (only two shift types)
 function getShiftTime(dayNumber, type) {
-  if (dayNumber === 7) return type === 1 ? '09:00-18:00' : type === 2 ? '12:00-18:00' : null
+  if (dayNumber === 7) return type === 1 ? '09:45-18:15' : type === 2 ? '11:45-20:15' : null
   if (dayNumber === 3) {
     if (type === 1) return '08:00-17:00'
-    if (type === 2) return '08:00-14:00'
+    if (type === 2) return '08:00-14:30'
   }
-  if (type === 1) return '10:00-19:00'
-  if (type === 2) return '10:00-16:00'
-  if (type === 3) return '11:00-20:00'
-  if (type === 4) return '14:00-20:00'
+  if (type === 1) return '09:30-18:30'
+  if (type === 2) return '10:00-16:30'
+  if (type === 3) return '11:15-20:15'
+  if (type === 4) return '13:45-20:15'
   return null
 }
 
@@ -139,15 +139,23 @@ export default function RotaScheduler() {
   const weekDates = useMemo(() => (isValidWeek ? getWeekDates(week) : []), [week, isValidWeek])
   const assignments = useMemo(() => buildAssignments(rota), [rota])
 
-  const rows = useMemo(() => employeeOrder
-    .filter((id) => idToName[id] !== undefined)
-    .map((id) => ({ id, name: idToName[id] }))
+  const rows = useMemo(() => {
+    // ids in the rota that no longer exist in employee details (deleted employees) go after the current employees
+    const knownIds = employeeOrder.filter((id) => idToName[id] !== undefined)
+    const deletedIds = Object.keys(assignments)
+      .map(Number)
+      .filter((id) => idToName[id] === undefined)
+    return [
+      ...knownIds.map((id) => ({ id, name: idToName[id] })),
+      ...deletedIds.map((id) => ({ id, name: '[deleted employee]', deleted: true })),
+    ]
     .map((employee) => {
       const employeeAssignments = assignments[employee.id] ?? {}
       const cells = weekDays.map((day) => employeeAssignments[day.number] ?? null)
       const totalHours = cells.reduce((sum, cell) => sum + (cell?.hours ?? 0), 0)
       return { employee, cells, totalHours }
-    }), [employeeOrder, idToName, assignments])
+    })
+  }, [employeeOrder, idToName, assignments])
 
   const hasAnyData = rows.some((row) => row.cells.some((cell) => cell !== null))
 
@@ -267,13 +275,13 @@ export default function RotaScheduler() {
               <tr
                 key={row.employee.id}
                 className={draggedId === row.employee.id ? 'rota-row-dragging' : ''}
-                draggable
+                draggable={!row.employee.deleted}
                 onDragStart={() => handleDragStart(row.employee.id)}
                 onDragOver={(event) => handleDragOver(event, row.employee.id)}
                 onDragEnd={handleDragEnd}
               >
                 <th className="rota-table-employee" scope="row">
-                  <span className="rota-table-drag-handle" aria-hidden="true">⠿</span>
+                  {!row.employee.deleted && <span className="rota-table-drag-handle" aria-hidden="true">⠿</span>}
                   {row.employee.name}
                 </th>
                 {row.cells.map((cell, index) => (

@@ -5,6 +5,8 @@ import {Rota} from "./rotaFramework.ts";
 function runAlgorithm(rota: Rota): Object{
 
     
+    const MAX_STEPS = 100000;
+    var steps = 0;
     var day: number = 0;
     var lastComboForDay: number[] = [0,0,0,0,0,0,0];
     const dayCombinator = new DayCombinator(rota);
@@ -15,6 +17,12 @@ function runAlgorithm(rota: Rota): Object{
         var backtrackFlag = false;
 
         do{
+
+            steps++;
+            console.log(steps);
+            if (steps > MAX_STEPS) {
+                throw new Error("Rota is Infeasible or Try Again");
+            }
 
             const dayCombination = dayCombinator.findDayCombination(day,i);
 
