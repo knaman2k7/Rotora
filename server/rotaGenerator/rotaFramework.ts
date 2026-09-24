@@ -65,23 +65,34 @@ export class Rota{
     // simple day 7 check so far -- really expensive
     public valid(): boolean{
 
+        
         // simple implemetation so far
-
-        return true;
-
         if (this.notComplete()){
             return true;
         }
         else{
 
+            // CCDhours.currentHours only holds the pre-allocated (fixed) shifts,
+            // so total each employee's hours from the completed working rota
+            const totals: Record<number, number> = {};
+            Object.entries(this.workingRota as Record<string, Array<number | null>>).forEach(([code, employees]) => {
+                const hours = this.getShiftHours(code);
+                employees.forEach(id => {
+                    if (id === null) return;
+                    totals[id] = (totals[id] ?? 0) + hours;
+                });
+            });
+
             // make sure every minimum contract hour has been hit
             return Object.entries(this.CCDhours).every(
                 ([key,value]) => {
-                    if (Number(key) in this.fullTimeEmployees){
-                        return value.currentHours == value.contractHours
+                    const worked = totals[Number(key)] ?? 0;
+                    // `in` tests array indices, not values - use includes
+                    if (this.fullTimeEmployees.includes(Number(key))){
+                        return worked == value.contractHours
                     }
                     else{
-                        return value.currentHours >= value.contractHours
+                        return worked >= value.contractHours
                     }
                 }
             )

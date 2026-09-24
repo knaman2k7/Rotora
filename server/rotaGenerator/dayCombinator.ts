@@ -48,7 +48,7 @@ export default class DayCombinator{
             // if after shredding none are left - return null -> backtrack
 
             // rank them
-            combos = this.rankMetric(combos);
+            combos = this.rankMetric(combos, day);
 
             // put them into the weekCombinations
             this.weekCombinations[this.mapDay[day]] = combos;
@@ -234,11 +234,29 @@ export default class DayCombinator{
     // each combination is { "<shiftCode>": number[] } (fully filled slot arrays)
     // returns the combinations sorted best-first (lowest score first), so
     // employees who are furthest behind on their hours are favoured
-    private rankMetric(combinations: Object[]): Object[]{
+    private rankMetric(combinations: Object[], day: number): Object[]{
 
         // score = sum[for each employee in the day combination]( currentHours( 1/contractHours + k/desiredHours ) )
         const k = 0.15;
         const hours = this.rota.getEmployeeHours();
+
+        // rota.currentHours only holds the pre-allocated (fixed) shifts, it is
+        // never updated as days get decided. Without this, anyone with a fixed
+        // shift (e.g. Jo's Sunday) looks "ahead" on hours for the whole week
+        // and is ranked last every day. So add the hours the algorithm has
+        // already assigned on earlier days (slots that were null in baseRota).
+        const extraHours: Record<number, number> = {};
+        const base = this.rota.baseRota as Record<string, Array<number | null>>;
+        const working = this.rota.workingRota as Record<string, Array<number | null>>;
+        for (const [code, slots] of Object.entries(working)) {
+            if (Math.floor(Number(code) / 10) > day) continue; // today onwards isn't decided yet
+            const type = Number(code) % 10;
+            const shiftHours = (type === 2 || type === 4) ? 6 : 8;
+            slots.forEach((id, idx) => {
+                if (id === null || base[code]?.[idx] !== null) return; // empty or fixed (already credited)
+                extraHours[id] = (extraHours[id] ?? 0) + shiftHours;
+            });
+        }
 
         const scoreOf = (combo: Object): number => {
             let score = 0;
@@ -249,7 +267,7 @@ export default class DayCombinator{
                     // a zero contract/desired value contributes nothing rather than Infinity
                     const contractTerm = h.contractHours > 0 ? 1 / h.contractHours : 0;
                     const desiredTerm = h.desiredHours > 0 ? k / h.desiredHours : 0;
-                    score += h.currentHours * (contractTerm + desiredTerm);
+                    score += (h.currentHours + (extraHours[id] ?? 0)) * (contractTerm + desiredTerm);
                 }
             }
             return score;
@@ -257,7 +275,7 @@ export default class DayCombinator{
 
         return combinations
             .map((combo) => ({ combo, score: 
-                scoreOf(combo) + (0 * Math.random())
+                scoreOf(combo) + (0.05 * Math.random())
             }))
             .sort((a, b) => a.score - b.score)
             .map((entry) => entry.combo);
